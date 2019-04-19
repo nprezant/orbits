@@ -1,6 +1,11 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const path = require('path');
 
 module.exports = {
+    output: {
+        filename: 'main.js',
+        path: path.resolve(__dirname, 'docs')
+    },
     mode: 'development',
     module: {
         rules: [
@@ -27,7 +32,7 @@ module.exports = {
     },
     devtool: 'inline-source-map',
     devServer: {
-        contentBase: './dist'
+        contentBase: './docs'
     },
     plugins: [
         new HtmlWebPackPlugin({
