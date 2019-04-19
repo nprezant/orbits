@@ -1,0 +1,54 @@
+.panel-holder {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: absolute;
+    background: transparent;
+    right: 0;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: relative;
+    margin: 0;
+    overflow: overlay;
+    padding-bottom: 3em;
+}
+
+.panel-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    background-color: rgba(192,192,192,0.5);
+}
+
+.panel-title {
+    display: flex;
+    padding-left: 0.5em;
+}
+
+.x-button {
+    display: flex;
+    background-color: #e7e7e7; /* gray */
+    border: none;
+    color: red;
+    height: 1em;
+    width: 1em;
+    margin: 0 0.5em 0 0;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 50%;
+}
+
+.x-button:hover {
+    color: #e7e7e7; /* gray */
+    background-color: red;
+}
+
+.panel-dat {
+    overflow: auto;
+}

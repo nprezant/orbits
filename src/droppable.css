@@ -1,0 +1,23 @@
+
+.dropInput {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    font-family: 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: bold;
+    font-size: 1.25em;
+}
+
+.dropInput-dropping {
+    border: dashed #5ea0c9 2px;
+    background: #193d77;
+    opacity: 0.75;
+}
+
+.dropInput-empty {
+    color: red;
+}
+
+.dropInput-dropped {
+    color: #1ed36f;
+}

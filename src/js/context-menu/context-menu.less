@@ -1,0 +1,54 @@
+.ContextMenu {
+    display: none;
+    list-style: none;
+    margin: 0;
+    max-width: 250px;
+    min-width: 125px;
+    padding: 0;
+    position: absolute;
+    user-select: none;
+  
+    &--theme-default {
+      color: #000;
+      background-color: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      font-size: 13px;
+      outline: 0;
+      padding: 2px 0;
+  
+      .ContextMenu-item {
+        padding: 6px 12px;
+  
+        &:hover,
+        &:focus {
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+  
+        &:focus {
+          outline: 0;
+        }
+      }
+  
+      .ContextMenu-divider {
+        background-color: rgba(0, 0, 0, 0.15);
+      }
+    }
+  
+    &.is-open {
+      display: block;
+    }
+  }
+  
+  .ContextMenu-item {
+    cursor: pointer;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .ContextMenu-divider {
+    height: 1px;
+    margin: 4px 0;
+  }
