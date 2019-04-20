@@ -1,19 +1,18 @@
 
 import * as THREE from 'three';
-import * as dat from 'dat.gui';
-import TrackballControls from './js/controls/TrackballControls.js';
+import TrackballControls from './js/controls/TrackballControls';
 
-import ContextMenu from './js/context-menu/context-menu.js';
+import ContextMenu from './js/context-menu/context-menu';
 
 import InspireTree from 'inspire-tree';
 import InspireTreeDOM from 'inspire-tree-dom';
 import 'inspire-tree-dom/dist/inspire-tree-dark.css';
 
-import {Orbit, OrbitManager, makeEllipticalElementsR, hohmannTransferDeltaV} from './orbit.js';
-import PanelManager from './js/panel-manager/PanelManager.js';
+import {Orbit, OrbitManager} from './three-orbit';
+import PanelManager from './js/panel-manager/PanelManager';
 
 import earthImg from './textures/land_ocean_ice_cloud_2048.jpg';
-import { arange } from './js/helpers/arrays.js';
+import Project1Worker from './project1.worker';
 
 
 var orbits;
@@ -22,6 +21,7 @@ var mainbody;
 var container;
 var tree;
 var panelmanager;
+var myWorker;
 
 function init() {
 
@@ -97,10 +97,32 @@ function init() {
         { name: 'Resume Time', fn: () => { orbits.resumeAll() }},
         { name: 'New Orbit', fn: () => {orbits.newOrbitGUI() }},
         { name: 'Make Demo Orbits', fn: () => {addDemoOrbits() }},
-        { name: 'Run Task 1', fn: () => {project1Task1() }},
-      ]);
+        { name: 'Run Task 1', fn: () => {
 
-    // menu.on('itemselected', () => { console.log('item selected') });
+            if (typeof(Worker) !== 'undefined') {
+                // web worker support!
+
+                let worker = new Project1Worker();
+                worker.addEventListener('message', function(event) {
+
+                    console.log('Back in main script: worker said: ', event.data);
+
+                    switch (event.data.cmd) {
+                        case 'project1task1':
+                            let plotEl = document.getElementById('plot-panel');
+                            Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
+                    }
+                }, false);
+
+                worker.postMessage({cmd: 'project1task1'});
+                // worker.terminate();
+
+            } else {
+                alert('Sorry! No Web Worker support...')
+            }
+
+        }}
+      ]);
     
 }
 
@@ -163,7 +185,6 @@ function createTree() {
 }
 
 
-
 function onNodeDoubleClick(event, node) {
     try {
         node.object.editPropertiesGUI(panelmanager);
@@ -171,8 +192,6 @@ function onNodeDoubleClick(event, node) {
         // probably doesn't have the method defined
     }
 }
-
-
 
 
 function onWindowResize() {
@@ -200,41 +219,6 @@ function animate() {
 function updateOrbits() {
     // update the orbit positions by one timestep
     orbits.update();    
-}
-
-function project1Task1() {
-
-    let rA = 40000;
-    let rAprime = rA * 5;
-    let rBrARange = arange(5.5, 10, 0.1);
-    let rBprimeRARange = arange(1.5, 10, 0.1);
-
-    let deltaV = [];
-    let deltaVprime = [];
-
-    for (const rBrA of rBrARange) {
-        for (const rBprimeRA of rBprimeRARange) {
-
-            let rp1 = rA;
-            let ra1 = rAprime;
-            let rp2 = rBprimeRA * rA;
-            let ra2 = rBrA * rA;
-
-            let orbit1 = new Orbit();
-            orbit1.init_from_elements2(makeEllipticalElementsR(rp1, ra1));
-            
-            let orbit2 = new Orbit();
-            orbit2.init_from_elements2(makeEllipticalElementsR(rp2, ra2));
-
-            deltaV.push(hohmannTransferDeltaV(orbit1, orbit2, true));
-            deltaVprime.push(hohmannTransferDeltaV(orbit1, orbit2, false));
-        }
-    }
-
-    let deltaVRatio = deltaVprime.map( (dVprime, i) => { return dVprime/deltaV[i] } );
-    
-
-
 }
 
 
