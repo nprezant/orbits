@@ -14,7 +14,8 @@ import PanelManager from './js/panel-manager/PanelManager';
 import earthImg from './textures/land_ocean_ice_cloud_2048.jpg';
 import Project1Worker from './project1.worker';
 import { OrbitController } from './OrbitController';
-import { makeCircularElementsR, makeEllipticalElementsR } from './orbit';
+import { makeCircularElementsR, makeEllipticalElementsR, makeHohmannTransfer, hohmannTransferDeltaV } from './orbit';
+import { arange } from './js/helpers/arrays';
 
 
 var orbitManager;
@@ -68,7 +69,7 @@ function init() {
     // controls
     controls = new TrackballControls( camera, renderer.domElement );
     controls.minDistance = 7000;
-    controls.maxDistance = 200000;
+    controls.maxDistance = 2000000;
     
     // make model tree
     tree = createTree();
@@ -101,7 +102,8 @@ function init() {
         { name: 'Make Demo Orbits', fn: () => {addDemoOrbits() }},
         { name: 'Run Task 1', fn: () => {runTask1() }},
         { name: 'Make Circular Orbits', fn: () => {addCircularOrbits() }},
-        { name: 'Make Elliptical Orbits', fn: () => {addEllipticalOrbits() }}
+        { name: 'Make Elliptical Orbits', fn: () => {addEllipticalOrbits() }},
+        { name: 'TEST', fn: () => {project1Task1() }}
       ]);
     
 }
@@ -115,14 +117,15 @@ function runTask1() {
 
             console.log('Back in main script: worker said: ', event.data);
 
-            if (event.data.cmd == 'project1task1') {
+            if (event.data.cmd == 'project1task1plot1') {
                 let plotEl = document.getElementById('plot-panel');
                 Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
+                // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
             }
 
         }, false);
 
-        worker.postMessage({cmd: 'project1task1'});
+        worker.postMessage({cmd: 'project1task1plot1'});
         // worker.terminate();
 
     } else {
@@ -132,15 +135,15 @@ function runTask1() {
 }
 
 function addCircularOrbits() {
-    let smallCircularOrbit = new ThreeOrbit({elements: makeCircularElementsR(8000), name: 'Circular Orbit 1' })
-    let largeCircularOrbit = new ThreeOrbit({elements: makeCircularElementsR(20000), name: 'Circular Orbit 2' })
+    let smallCircularOrbit = new ThreeOrbit({elements: makeCircularElementsR(80000), name: 'Circular Orbit 1' })
+    let largeCircularOrbit = new ThreeOrbit({elements: makeCircularElementsR(200000), name: 'Circular Orbit 2' })
     orbitController.addExistingOrbit(smallCircularOrbit);
     orbitController.addExistingOrbit(largeCircularOrbit);
 }
 
 function addEllipticalOrbits() {
-    let smallEllipticalOrbit = new ThreeOrbit({elements: makeEllipticalElementsR(8000, 12000), name: 'Elliptical Orbit 1' })
-    let largeEllipticalOrbit = new ThreeOrbit({elements: makeEllipticalElementsR(10000, 20000), name: 'Elliptical Orbit 1' })
+    let smallEllipticalOrbit = new ThreeOrbit({elements: makeEllipticalElementsR(80000, 120000), name: 'Elliptical Orbit 1' })
+    let largeEllipticalOrbit = new ThreeOrbit({elements: makeEllipticalElementsR(100000, 200000), name: 'Elliptical Orbit 1' })
     orbitController.addExistingOrbit(smallEllipticalOrbit);
     orbitController.addExistingOrbit(largeEllipticalOrbit);
 }
@@ -229,7 +232,63 @@ function updateOrbits() {
     orbitManager.update();    
 }
 
+function project1Task1() {
 
+    let rA = 40000;
+    let rAprime = rA * 5;
+    let xrange = arange(5.5, 10, 5); // rBrARange
+    let yrange = arange(1.5, 10, 8); // rBprimeRARange
+
+    xrange = [5.5];
+    yrange = [1.5];
+
+    let count = 0;
+
+    for (const rBprimeRA of yrange) {
+        
+        let constYColumn = [];
+
+        for (const rBrA of xrange) {
+
+            let r0degA = rA;
+            let r180degA = rAprime;
+
+            let r0degB = rBprimeRA * rA;
+            let r180degB = rBrA * rA;
+
+            let startOrbit = new ThreeOrbit({elements:makeEllipticalElementsR(r0degA, r180degA), name: 'Start Orbit ' + count});
+            let endOrbit = new ThreeOrbit({elements:makeEllipticalElementsR(r0degB, r180degB), name: 'End Orbit ' + count});
+
+            let startTheta = 0;
+            let endTheta = startTheta + Math.PI; // 180 degrees
+            let transferOrbit1 = new ThreeOrbit({elements:makeHohmannTransfer(startOrbit.orbit, endOrbit.orbit, startTheta), name: 'Transfer Orbit1 ' + count});
+            let transferOrbit2 = new ThreeOrbit({elements:makeHohmannTransfer(startOrbit.orbit, endOrbit.orbit, endTheta), name: 'Transfer Orbit2 ' + count});
+
+            let deltaV1 = (
+                Math.abs( endOrbit.orbit.velocityAtTheta(endTheta) - transferOrbit1.orbit.velocityAtTheta(endTheta) )
+                + Math.abs( transferOrbit1.orbit.velocityAtTheta(startTheta) - startOrbit.orbit.velocityAtTheta(startTheta) )
+            );
+            
+            let deltaV2 = (
+                Math.abs( endOrbit.orbit.velocityAtTheta(startTheta) - transferOrbit2.orbit.velocityAtTheta(startTheta) )
+                + Math.abs( transferOrbit2.orbit.velocityAtTheta(endTheta) - startOrbit.orbit.velocityAtTheta(endTheta) )
+            );
+
+            // let dv = hohmannTransferDeltaV(startOrbit, endOrbit, 0);
+            // let dvPrime = hohmannTransferDeltaV(startOrbit, endOrbit, Math.PI);
+            let dvRatio = deltaV2/deltaV1;
+
+            orbitManager.addOrbit(startOrbit);
+            orbitManager.addOrbit(endOrbit);
+            orbitManager.addOrbit(transferOrbit1);
+            orbitManager.addOrbit(transferOrbit2);
+
+            count++;
+
+        }
+
+    }
+}
 
 init();
 animate();

@@ -5,9 +5,9 @@ self.addEventListener('message', function(event) {
 
     switch (event.data.cmd) {
 
-        case 'project1task1':
-            let returnData = project1Task1();
-            returnData['cmd'] = 'project1task1';
+        case 'project1task1plot1':
+            let returnData = project1Task1Plot1();
+            returnData['cmd'] = 'project1task1plot1';
             self.postMessage(returnData);
             self.close();
             break;
@@ -17,12 +17,20 @@ self.addEventListener('message', function(event) {
     }
 }, false);
 
-function project1Task1() {
-
+function project1Task1Plot1() {
     let rA = 40000;
-    let rAprime = rA * 5;
+    let rAprime = rA * 1;
     let xrange = ArrayModule.arange(5.5, 10, 0.1); // rBrARange
     let yrange = ArrayModule.arange(1.5, 10, 0.1); // rBprimeRARange
+    let data = project1Task1(rA, rAprime, xrange, yrange);
+    data.plot_layout.title = 'Plot 1 - r\'\/r = 5'
+    // data.plot_data.contours = {
+        
+    // }
+    return data;
+}
+
+function project1Task1(rA, rAprime, xrange, yrange) {
 
     let z_data = [];
 
@@ -32,19 +40,35 @@ function project1Task1() {
 
         for (const rBrA of xrange) {
 
-            let rp1 = rA;
-            let ra1 = rAprime;
+            let r0degA = rA;
+            let r180degA = rAprime;
 
-            let rp2 = rBprimeRA * rA;
-            let ra2 = rBrA * rA;
+            let r0degB = rBprimeRA * rA;
+            let r180degB = rBrA * rA;
 
-            let orbit1 = new OrbitModule.Orbit({elements:OrbitModule.makeEllipticalElementsR(rp1, ra1)});
+            let startOrbit = new OrbitModule.Orbit({elements: OrbitModule.makeEllipticalElementsR(r0degA, r180degA)});
+            let endOrbit = new OrbitModule.Orbit({elements: OrbitModule.makeEllipticalElementsR(r0degB, r180degB)});
+
+            // let dv = OrbitModule.hohmannTransferDeltaV(startOrbit, endOrbit, 0);
+            // let dvPrime = OrbitModule.hohmannTransferDeltaV(startOrbit, endOrbit, Math.PI);
+            // let dvRatio = dvPrime/dv;
+
+            let startTheta = 0;
+            let endTheta = startTheta + Math.PI; // 180 degrees
+            let transferOrbit1 = new OrbitModule.Orbit({elements: OrbitModule.makeHohmannTransfer(startOrbit, endOrbit, startTheta), name: 'Transfer Orbit1 '});
+            let transferOrbit2 = new OrbitModule.Orbit({elements: OrbitModule.makeHohmannTransfer(startOrbit, endOrbit, endTheta), name: 'Transfer Orbit2 '});
+
+            let deltaV1 = (
+                Math.abs( endOrbit.velocityAtTheta(endTheta) - transferOrbit1.velocityAtTheta(endTheta) )
+                + Math.abs( transferOrbit1.velocityAtTheta(startTheta) - startOrbit.velocityAtTheta(startTheta) )
+            );
             
-            let orbit2 = new OrbitModule.Orbit({elements:OrbitModule.makeEllipticalElementsR(rp2, ra2)});
+            let deltaV2 = (
+                Math.abs( endOrbit.velocityAtTheta(startTheta) - transferOrbit2.velocityAtTheta(startTheta) )
+                + Math.abs( transferOrbit2.velocityAtTheta(endTheta) - startOrbit.velocityAtTheta(endTheta) )
+            );
 
-            let dv = OrbitModule.hohmannTransferDeltaV(orbit1, orbit2, true);
-            let dvPrime = OrbitModule.hohmannTransferDeltaV(orbit1, orbit2, false);
-            let dvRatio = dvPrime/dv;
+            let dvRatio = deltaV2/deltaV1;
 
             constYColumn.push(dvRatio);
 
@@ -58,15 +82,18 @@ function project1Task1() {
         z: z_data,
         x: xrange,
         y: yrange,
-        type: 'contour'
-        // contours: {
-            //     z: {
-                //         show:true,
-                //         usecolormap: true,
-                //         highlightcolor:"#42f462",
-                //         project:{z: true}
-                //     }
-                // }
+        type: 'contour',
+        contours : {
+            showlabels: true,
+            labelfont: {
+                family: 'Raleway',
+                size: 12,
+                color: 'white',
+            },
+            // start: 1,
+            // end: 1.5,
+            // size: 0.05
+    }
     }];
     
     var layout = {

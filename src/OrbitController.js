@@ -147,7 +147,7 @@ function editOrbitProperties( gui, orbit3 ) {
             Rp: 0,
             refDom1: null,
             refDom2: null,
-            speedUpAtPerigee: true,
+            startTheta: 0,
         },
         // Generate: generateOrbit,
         Pause: function() {
@@ -185,7 +185,8 @@ function editOrbitProperties( gui, orbit3 ) {
             orbit3.startRendering();
         }
         folder.add( selectedItem, 'generateFnWithInputs' );
-
+        folder.open();
+        openFolders.push(folder);
     });
 
 }
@@ -253,7 +254,7 @@ function generateELOrbit(orbit3, params) {
     let Omega = currentState.Omega;
     let inclination = currentState.inclination;
     let omega = currentState.omega;
-    orbit3.orbit = new Orbit({elements: new ClassicalOrbitalElements(tehta, h, e, Omega, inclination, omega) });
+    orbit3.orbit = new Orbit({elements: new ClassicalOrbitalElements(theta, h, e, Omega, inclination, omega) });
 }
 
 function generateOffsetELOrbit(orbit3, params) {
@@ -265,7 +266,7 @@ function generateOffsetELOrbit(orbit3, params) {
     let Omega = refOrbit.state.Omega + offsetState.Omega;
     let inclination = refOrbit.state.inclination + offsetState.inclination;
     let omega = refOrbit.state.omega + offsetState.omega;
-    orbit3.orbit = new Orbit({elements: new ClassicalOrbitalElements(tehta, h, e, Omega, inclination, omega) });
+    orbit3.orbit = new Orbit({elements: new ClassicalOrbitalElements(theta, h, e, Omega, inclination, omega) });
 }
 
 function generateCircularROrbit(orbit3, params) {
@@ -288,7 +289,7 @@ function generateHohmnannOrbit(orbit3, params) {
     orbit3.orbit = new Orbit({ elements: makeHohmannTransfer(
         getRefOrbit(params.additionalVars.refDom1).orbit,
         getRefOrbit(params.additionalVars.refDom2).orbit,
-        params.additionalVars.speedUpAtPerigee
+        params.additionalVars.startTheta
     ) });
 }
         
@@ -338,7 +339,7 @@ function makeEllipticalRFolder(folder, params) {
 function makeHohmnannFolder(folder, params) {
     params.additionalVars.refDom1 = addReferenceItemToFolder(folder);
     params.additionalVars.refDom2 = addReferenceItemToFolder(folder);
-    folder.add(params.additionalVars, 'speedUpAtPerigee');
+    folder.add(params.additionalVars, 'startTheta');
 }
 
 function addReferenceItemToFolder(folder) {

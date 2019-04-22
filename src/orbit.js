@@ -398,93 +398,44 @@ export function makeCircularElementsV(velocity) {
     return new ClassicalOrbitalElements(theta, h, e, Omega, inclination, omega);
 }
 
-export function makeEllipticalElementsR(rp, ra) {
+export function makeEllipticalElementsR(rp, ra, omega=0) {
     // makes classical orbital elements for an elliptical orbit, given RA and RP
-    if (rp > ra) {
-        // throw Error('Perigee must be less than Apogee')
-        let temp_ra = ra;
-        ra = rp;
-        rp = temp_ra;
-    };
     let theta = 0;
     let h = Math.sqrt(2*MU) * Math.sqrt((ra*rp)/(ra+rp));
     let e = (ra-rp)/(ra+rp);
     let Omega = 0;
     let inclination = 0;
-    let omega = 0;
     return new ClassicalOrbitalElements(theta, h, e, Omega, inclination, omega);
 }
 
-export function makeHohmannTransfer(startOrbit, endOrbit, startAtTheta=0) {
+export function makeHohmannTransfer(startOrbit, endOrbit, startTheta=0) {
     // comes up with the classical orbital elements for the hohmann transfer ellipse
     // between two orbits.
     // orbits MUST share an apse line.
-    // speedUpAtPerigee = true is recommended.
-    // for hohmann transfer, it is more efficient to go from perigee of the inner
-    // ellipse to apogee of the outer ellipse
 
-    let rp1 = startOrbit.radiusAtTheta(startAtTheta);
-    let ra1 = startOrbit.rApogee;
+    let endTheta = startTheta + Math.PI; // 180 degrees
+
+    let rStartTransfer = startOrbit.radiusAtTheta(startTheta);
+    // let rend1 = startOrbit.radiusAtTheta(endTheta);
     
-    let rp2 = endOrbit.rPerigee;
-    let ra2 = endOrbit.rApogee;
+    let rEndTransfer = endOrbit.radiusAtTheta(endTheta);
+    // let ra2 = endOrbit.rApogee;
 
-    let rp;
-    let ra;
-
-    let elements;
-
-    if (startAtTheta == 0) { // inner perigee to outer apogee (more efficient)
-        if (rp1 <= rp2) { // orbit 1 is the inner ellipse
-            rp = rp1;
-            ra = ra2;
-        } else { // orbit 2 is the inner ellipse
-            rp = rp2;
-            ra = ra1;
-        }
-        elements = makeEllipticalElementsR(rp, ra);
-    } else { // inner apogee to outer perigee (less efficient)
-        if (rp1 <= rp2) {
-            rp = ra1;
-            ra = rp2;
-        } else {
-            rp = ra2;
-            ra = rp1;
-        }
-        elements = makeEllipticalElementsR(rp, ra);
-        elements.omega = Math.PI; // flip
-    }
+    let elements = makeEllipticalElementsR(rStartTransfer, rEndTransfer, startTheta);
 
     return elements
 }
 
-export function hohmannTransferDeltaV(orbit1, orbit2, speedUpAtPerigee=true) {
+export function hohmannTransferDeltaV(startOrbit, endOrbit, startTheta) {
     // finds the delta V required in a hohmann transfer
     
-    let deltaV;
-    let transferOrbit = new Orbit({elements:makeHohmannTransfer(orbit1, orbit2, speedUpAtPerigee)});
-
-    let rp1 = orbit1.rPerigee;
-    let rp2 = orbit2.rPerigee;
-
-    if (rp1 <= rp2) { // orbit1 is the inner ellipse
-        if (speedUpAtPerigee) { // inner perigee to outer apogee (more efficient)
-            // deltaV = Math.abs(orbit2.vApogee - transferOrbit.vApogee) + Math.abs(transferOrbit.vPerigee - orbit1.vPerigee);
-            deltaV = Math.abs(orbit2.velocityAtTheta(Math.PI) - transferOrbit.velocityAtTheta(Math.PI)) + Math.abs(transferOrbit.velocityAtTheta(0) - orbit1.velocityAtTheta(0));
-        } else { // inner apogee to outer perigee
-            // deltaV = Math.abs(orbit2.vPerigee - transferOrbit.vApogee) + Math.abs(transferOrbit.vPerigee - orbit1.vApogee);
-            deltaV = Math.abs(orbit2.velocityAtTheta(0) - transferOrbit.velocityAtTheta(0)) + Math.abs(transferOrbit.velocityAtTheta(Math.PI) - orbit1.velocityAtTheta(Math.PI));
-            
-        }
-    } else { // orbit2 is the inner ellipse
-        if (speedUpAtPerigee) {
-            // deltaV = Math.abs(orbit1.vApogee - transferOrbit.vApogee) + Math.abs(transferOrbit.vPerigee - orbit2.vPerigee);
-            deltaV = Math.abs(orbit1.velocityAtTheta(Math.PI) - transferOrbit.velocityAtTheta(Math.PI)) + Math.abs(transferOrbit.velocityAtTheta(0) - orbit2.velocityAtTheta(0));
-        } else {
-            // deltaV = Math.abs(orbit1.vPerigee - transferOrbit.vApogee) + Math.abs(transferOrbit.vPerigee - orbit2.vApogee);
-            deltaV = Math.abs(orbit1.velocityAtTheta(0) - transferOrbit.velocityAtTheta(0)) + Math.abs(transferOrbit.velocityAtTheta(Math.PI) - orbit2.velocityAtTheta(Math.PI));
-        }
-    }
+    let transferOrbit = new Orbit({elements:makeHohmannTransfer(startOrbit, endOrbit, startTheta)});
+    let endTheta = startTheta + Math.PI; // 180 degrees
+    
+    let deltaV = (
+        Math.abs( endOrbit.velocityAtTheta(endTheta) - transferOrbit.velocityAtTheta(endTheta) )
+        + Math.abs( transferOrbit.velocityAtTheta(startTheta) - startOrbit.velocityAtTheta(startTheta) )
+    )
 
     return deltaV;
 

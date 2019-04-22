@@ -426,7 +426,7 @@ export class ThreeOrbit extends THREE.Group {
         } );
 
         // body geometry
-        var geometry = new THREE.BoxBufferGeometry( 500, 500, 500 );
+        var geometry = new THREE.BoxBufferGeometry( 5000, 5000, 5000 );
 
         // body mesh
         this.bodymesh = new THREE.Mesh( geometry, material );
@@ -463,7 +463,7 @@ export class ThreeOrbit extends THREE.Group {
         spline.curveType = 'catmullrom';
         spline.closed = true;
 
-        var splineGeometry = new THREE.TubeBufferGeometry( spline, 100, 10, 10, true );
+        var splineGeometry = new THREE.TubeBufferGeometry( spline, 100, 100, 10, true );
         var material = new THREE.MeshLambertMaterial( {
             color: this.stateOptions.defaultOrbitPathColor, 
             wireframe: false 
