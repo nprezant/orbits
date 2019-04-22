@@ -252,7 +252,7 @@ export class ThreeOrbit extends THREE.Group {
     // thus extends the GROUP class. Simply add the orbit
     // to the scene to render it.
 
-    constructor({name='New Orbit', elements=undefined, pv=undefined, render=true, paused=true, deltaT=20} = {}) {
+    constructor({name='New Orbit', elements=undefined, pv=undefined, render=true, paused=true, deltaT=100} = {}) {
         // optionally specify THREE.Group. This object will be added to that group
         // when it is initialized
         super();
