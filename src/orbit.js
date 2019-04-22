@@ -8,17 +8,30 @@ const MU = 398600 // [kg/s2], constant for earth
 
 export class Orbit {
 
-    constructor({name='Unnamed Orbit', elements=undefined, pv=undefined}={}) {
-
-        this.name = name;
+    constructor({elements=undefined, pv=undefined}={}) {
 
         if (elements !== undefined) {
             this.elements = elements;
         } else if (pv !== undefined) {
-            this.elements = pv_to_elements(pv);
+            this.elements = pv_to_elements(pv[0], pv[1]);
         } else {
             this.elements = new ClassicalOrbitalElements(0,0,0,0,0,0);
         }
+    }
+
+    get timeSincePerigee() {
+        return elements_to_time(this.elements);
+    }
+
+    set timeSincePerigee(newTime) {
+        this.elements = elements_at_time(this.elements, newTime);
+    }
+
+    setTimeSincePerigee(newTime) {
+        let newElements = elements_at_time(this.elements, newTime);
+        let orbitPathChanged = !newElements.orbitEquals(this.elements)
+        this.elements = newElements;
+        return orbitPathChanged; // return true if the orbital path changed
     }
 
     get semiMajorAxis() {
@@ -88,9 +101,13 @@ export class Orbit {
         return [pos, vel];
     }
 
+    clone() {
+        return new Orbit(this.elements);
+    }
+
 }
 
-class ClassicalOrbitalElements {
+export class ClassicalOrbitalElements {
     constructor(theta, h, e, Omega, inclination, omega) {
         // holds the 6 orbital elements
         // true anomoly, specific angular momentum,
@@ -269,7 +286,7 @@ function elements_to_pv(el) {
      return [rvec, vvec];
 }
 
-function orbital_path_pv_points(elements) {
+export function orbital_path_pv_points(elements) {
     // makes a list of position, velocity points along this orbital path
     // points is a list of [[pos,vel], ...]
     // retreive just points with:
@@ -357,7 +374,7 @@ function elements_to_time(elements) {
     return t
 }
 
-function makeCircularElementsR(radius) {
+export function makeCircularElementsR(radius) {
     // makes classical orbital elements for a circular orbit, given the RADIUS
     let v = Math.sqrt(MU/radius);
     let theta = 0;
@@ -369,7 +386,7 @@ function makeCircularElementsR(radius) {
     return new ClassicalOrbitalElements(theta, h, e, Omega, inclination, omega);
 }
 
-function makeCircularElementsV(velocity) {
+export function makeCircularElementsV(velocity) {
     // makes classical orbital elements for a circular orbit, given the VELOCITY
     let r = MU / velocity**2;
     let theta = 0;
@@ -398,7 +415,7 @@ export function makeEllipticalElementsR(rp, ra) {
     return new ClassicalOrbitalElements(theta, h, e, Omega, inclination, omega);
 }
 
-function makeHohmannTransfer(orbit1, orbit2, speedUpAtPerigee=true) {
+export function makeHohmannTransfer(startOrbit, endOrbit, startAtTheta=0) {
     // comes up with the classical orbital elements for the hohmann transfer ellipse
     // between two orbits.
     // orbits MUST share an apse line.
@@ -406,34 +423,39 @@ function makeHohmannTransfer(orbit1, orbit2, speedUpAtPerigee=true) {
     // for hohmann transfer, it is more efficient to go from perigee of the inner
     // ellipse to apogee of the outer ellipse
 
-    let rp1 = orbit1.rPerigee;
-    let ra1 = orbit1.rApogee;
+    let rp1 = startOrbit.radiusAtTheta(startAtTheta);
+    let ra1 = startOrbit.rApogee;
     
-    let rp2 = orbit2.rPerigee;
-    let ra2 = orbit2.rApogee;
+    let rp2 = endOrbit.rPerigee;
+    let ra2 = endOrbit.rApogee;
 
     let rp;
     let ra;
 
-    if (rp1 <= rp2) { // orbit1 is the inner ellipse
-        if (speedUpAtPerigee) { // inner perigee to outer apogee (more efficient)
+    let elements;
+
+    if (startAtTheta == 0) { // inner perigee to outer apogee (more efficient)
+        if (rp1 <= rp2) { // orbit 1 is the inner ellipse
             rp = rp1;
             ra = ra2;
-        } else { // inner apogee to outer perigee
-            rp = ra1;
-            ra = rp2;
-        }
-    } else { // orbit2 is the inner ellipse
-        if (speedUpAtPerigee) {
+        } else { // orbit 2 is the inner ellipse
             rp = rp2;
             ra = ra1;
+        }
+        elements = makeEllipticalElementsR(rp, ra);
+    } else { // inner apogee to outer perigee (less efficient)
+        if (rp1 <= rp2) {
+            rp = ra1;
+            ra = rp2;
         } else {
             rp = ra2;
             ra = rp1;
         }
+        elements = makeEllipticalElementsR(rp, ra);
+        elements.omega = Math.PI; // flip
     }
 
-    return makeEllipticalElementsR(rp, ra);
+    return elements
 }
 
 export function hohmannTransferDeltaV(orbit1, orbit2, speedUpAtPerigee=true) {
@@ -447,14 +469,19 @@ export function hohmannTransferDeltaV(orbit1, orbit2, speedUpAtPerigee=true) {
 
     if (rp1 <= rp2) { // orbit1 is the inner ellipse
         if (speedUpAtPerigee) { // inner perigee to outer apogee (more efficient)
+            // deltaV = Math.abs(orbit2.vApogee - transferOrbit.vApogee) + Math.abs(transferOrbit.vPerigee - orbit1.vPerigee);
             deltaV = Math.abs(orbit2.velocityAtTheta(Math.PI) - transferOrbit.velocityAtTheta(Math.PI)) + Math.abs(transferOrbit.velocityAtTheta(0) - orbit1.velocityAtTheta(0));
         } else { // inner apogee to outer perigee
+            // deltaV = Math.abs(orbit2.vPerigee - transferOrbit.vApogee) + Math.abs(transferOrbit.vPerigee - orbit1.vApogee);
             deltaV = Math.abs(orbit2.velocityAtTheta(0) - transferOrbit.velocityAtTheta(0)) + Math.abs(transferOrbit.velocityAtTheta(Math.PI) - orbit1.velocityAtTheta(Math.PI));
+            
         }
     } else { // orbit2 is the inner ellipse
         if (speedUpAtPerigee) {
+            // deltaV = Math.abs(orbit1.vApogee - transferOrbit.vApogee) + Math.abs(transferOrbit.vPerigee - orbit2.vPerigee);
             deltaV = Math.abs(orbit1.velocityAtTheta(Math.PI) - transferOrbit.velocityAtTheta(Math.PI)) + Math.abs(transferOrbit.velocityAtTheta(0) - orbit2.velocityAtTheta(0));
         } else {
+            // deltaV = Math.abs(orbit1.vPerigee - transferOrbit.vApogee) + Math.abs(transferOrbit.vPerigee - orbit2.vApogee);
             deltaV = Math.abs(orbit1.velocityAtTheta(0) - transferOrbit.velocityAtTheta(0)) + Math.abs(transferOrbit.velocityAtTheta(Math.PI) - orbit2.velocityAtTheta(Math.PI));
         }
     }

@@ -8,33 +8,27 @@ import InspireTree from 'inspire-tree';
 import InspireTreeDOM from 'inspire-tree-dom';
 import 'inspire-tree-dom/dist/inspire-tree-dark.css';
 
-import {Orbit, OrbitManager} from './three-orbit';
+import {ThreeOrbit, OrbitManager} from './three-orbit';
 import PanelManager from './js/panel-manager/PanelManager';
 
 import earthImg from './textures/land_ocean_ice_cloud_2048.jpg';
 import Project1Worker from './project1.worker';
+import { OrbitController } from './OrbitController';
+import { makeCircularElementsR, makeEllipticalElementsR } from './orbit';
 
 
-var orbits;
+var orbitManager;
 var camera, scene, renderer, controls;
 var mainbody;
 var container;
 var tree;
-var panelmanager;
-var myWorker;
+// var panelManager;
+var orbitController
 
 function init() {
 
     container = document.createElement( 'div' );
     document.body.appendChild( container );
-
-    panelmanager = new PanelManager(
-        'panel-holder',
-        {
-            prop_viewer: 'Property Viewer',
-            prop_editor: 'Property Editor'
-        }
-    );
 
     // scene
     scene = new THREE.Scene();
@@ -69,7 +63,6 @@ function init() {
     renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
-
     container.appendChild( renderer.domElement );
 
     // controls
@@ -84,46 +77,72 @@ function init() {
     let orbitNode = tree.addNode({ text: 'Orbits' });
 
     // init orbits
-    orbits = new OrbitManager(camera, renderer, panelmanager, orbitNode);
-    scene.add(orbits);
-    // addDemoOrbits();
+    orbitManager = new OrbitManager(camera, renderer, orbitNode);
+    scene.add(orbitManager);
+
+    // CONTROLLER
+    let panelManager = new PanelManager(
+        'panel-holder',
+        {
+            prop_viewer: 'Property Viewer',
+            prop_editor: 'Property Editor'
+        }
+    );
+    orbitController = new OrbitController(orbitManager, panelManager);
 
     // event listeners
     window.addEventListener( 'resize', onWindowResize, false );
 
     // context menu
     var menu = new ContextMenu('canvas', [
-        { name: 'Pause Time', fn: () => { orbits.pauseAll() }},
-        { name: 'Resume Time', fn: () => { orbits.resumeAll() }},
-        { name: 'New Orbit', fn: () => {orbits.newOrbitGUI() }},
+        { name: 'Pause Time', fn: () => { orbitManager.pauseAll() }},
+        { name: 'Resume Time', fn: () => { orbitManager.resumeAll() }},
+        { name: 'New Orbit', fn: () => {orbitController.newOrbit() }},
         { name: 'Make Demo Orbits', fn: () => {addDemoOrbits() }},
-        { name: 'Run Task 1', fn: () => {
-
-            if (typeof(Worker) !== 'undefined') {
-                // web worker support!
-
-                let worker = new Project1Worker();
-                worker.addEventListener('message', function(event) {
-
-                    console.log('Back in main script: worker said: ', event.data);
-
-                    switch (event.data.cmd) {
-                        case 'project1task1':
-                            let plotEl = document.getElementById('plot-panel');
-                            Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
-                    }
-                }, false);
-
-                worker.postMessage({cmd: 'project1task1'});
-                // worker.terminate();
-
-            } else {
-                alert('Sorry! No Web Worker support...')
-            }
-
-        }}
+        { name: 'Run Task 1', fn: () => {runTask1() }},
+        { name: 'Make Circular Orbits', fn: () => {addCircularOrbits() }},
+        { name: 'Make Elliptical Orbits', fn: () => {addEllipticalOrbits() }}
       ]);
     
+}
+
+function runTask1() {
+    if (typeof(Worker) !== 'undefined') {
+        // web worker support!
+
+        let worker = new Project1Worker();
+        worker.addEventListener('message', function(event) {
+
+            console.log('Back in main script: worker said: ', event.data);
+
+            if (event.data.cmd == 'project1task1') {
+                let plotEl = document.getElementById('plot-panel');
+                Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
+            }
+
+        }, false);
+
+        worker.postMessage({cmd: 'project1task1'});
+        // worker.terminate();
+
+    } else {
+        alert('Sorry! No Web Worker support...')
+    }
+
+}
+
+function addCircularOrbits() {
+    let smallCircularOrbit = new ThreeOrbit({elements: makeCircularElementsR(8000), name: 'Circular Orbit 1' })
+    let largeCircularOrbit = new ThreeOrbit({elements: makeCircularElementsR(20000), name: 'Circular Orbit 2' })
+    orbitController.addExistingOrbit(smallCircularOrbit);
+    orbitController.addExistingOrbit(largeCircularOrbit);
+}
+
+function addEllipticalOrbits() {
+    let smallEllipticalOrbit = new ThreeOrbit({elements: makeEllipticalElementsR(8000, 12000), name: 'Elliptical Orbit 1' })
+    let largeEllipticalOrbit = new ThreeOrbit({elements: makeEllipticalElementsR(10000, 20000), name: 'Elliptical Orbit 1' })
+    orbitController.addExistingOrbit(smallEllipticalOrbit);
+    orbitController.addExistingOrbit(largeEllipticalOrbit);
 }
 
 function addDemoOrbits() {
@@ -134,27 +153,17 @@ function addDemoOrbits() {
     let vvec3 = new THREE.Vector3(-1.767, -1.7905, 4.98);
     let vvec4 = new THREE.Vector3(-3.000, -0.9005, 4.98);
     
-    var orbit = new Orbit();
-    orbit.name = 'Frank';
-    orbit.init_from_pos_vel(rvec, vvec1);
-    orbits.addOrbit(orbit);
+    var orbit3 = new ThreeOrbit({pv: [rvec, vvec1], name: 'Frank', paused: false});
+    orbitManager.addOrbit(orbit3);
     
-    var orbit = new Orbit();
-    orbit.name = 'My boy Dedede';
-    orbit.init_from_pos_vel(rvec, vvec2);
-    orbits.addOrbit(orbit);
+    var orbit3 = new ThreeOrbit({pv: [rvec, vvec2], name: 'My boy Dedede', paused: false});
+    orbitManager.addOrbit(orbit3);
 
-    var orbit = new Orbit();
-    orbit.name = 'Helen';
-    orbit.init_from_pos_vel(rvec, vvec3);
-    orbits.addOrbit(orbit);
+    var orbit3 = new ThreeOrbit({pv: [rvec, vvec3], name: 'Helen', paused: false});
+    orbitManager.addOrbit(orbit3);
 
-    var orbit = new Orbit();
-    orbit.name = 'Mountain';
-    orbit.init_from_pos_vel(rvec, vvec4);
-    orbits.addOrbit(orbit);
-
-    orbits.resumeAll();
+    var orbit3 = new ThreeOrbit({pv: [rvec, vvec4], name: 'Mountain', paused: false});
+    orbitManager.addOrbit(orbit3);
 
 }
 
@@ -173,23 +182,22 @@ function createTree() {
     tree.on('node.dblclick', onNodeDoubleClick);
 
     // select events
-    tree.on('node.selected', function(node) {
-        if (node.object instanceof Orbit) {
-            node.object.parent.selectOrbit(node.object);
-        };
-    });
-
-    // updateTree();
+    tree.on('node.selected', onNodeSelect);
 
     return tree;
 }
 
+function onNodeSelect(node) {
+    if (node.object instanceof ThreeOrbit) {
+        node.object.parent.selectOrbit(node.object);
+        orbitController.viewProperties(node.object);
+    };
+}
+
 
 function onNodeDoubleClick(event, node) {
-    try {
-        node.object.editPropertiesGUI(panelmanager);
-    } catch {
-        // probably doesn't have the method defined
+    if (node.object instanceof ThreeOrbit) {
+        orbitController.editProperties(node.object);
     }
 }
 
@@ -218,7 +226,7 @@ function animate() {
 
 function updateOrbits() {
     // update the orbit positions by one timestep
-    orbits.update();    
+    orbitManager.update();    
 }
 
 
