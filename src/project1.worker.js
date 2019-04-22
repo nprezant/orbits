@@ -2,12 +2,28 @@ const ArrayModule = require('./js/helpers/arrays');
 const OrbitModule = require('./orbit');
 
 self.addEventListener('message', function(event) {
+    
+    let returnData;
 
     switch (event.data.cmd) {
 
         case 'project1task1plot1':
-            let returnData = project1Task1Plot1();
+            returnData = project1Task1Plot1();
             returnData['cmd'] = 'project1task1plot1';
+            self.postMessage(returnData);
+            self.close();
+            break;
+
+        case 'project1task1plot2':
+            returnData = project1Task1Plot2();
+            returnData['cmd'] = 'project1task1plot2';
+            self.postMessage(returnData);
+            self.close();
+            break;
+
+        case 'project1task1plot3':
+            returnData = project1Task1Plot3();
+            returnData['cmd'] = 'project1task1plot3';
             self.postMessage(returnData);
             self.close();
             break;
@@ -19,11 +35,37 @@ self.addEventListener('message', function(event) {
 
 function project1Task1Plot1() {
     let rA = 40000;
-    let rAprime = rA * 1;
+    let rAprime = rA * 5;
     let xrange = ArrayModule.arange(5.5, 10, 0.1); // rBrARange
     let yrange = ArrayModule.arange(1.5, 10, 0.1); // rBprimeRARange
     let data = project1Task1(rA, rAprime, xrange, yrange);
-    data.plot_layout.title = 'Plot 1 - r\'\/r = 5'
+    data.plot_layout.title = 'Plot 1 - rA\' / rA = 5'
+    // data.plot_data.contours = {
+        
+    // }
+    return data;
+}
+
+function project1Task1Plot2() {
+    let rA = 40000;
+    let rAprime = rA * 1;
+    let xrange = ArrayModule.arange(2, 10, 0.1); // rBrARange
+    let yrange = ArrayModule.arange(2, 10, 0.1); // rBprimeRARange
+    let data = project1Task1(rA, rAprime, xrange, yrange);
+    data.plot_layout.title = 'Plot 2 - rA\' / rA = 1'
+    // data.plot_data.contours = {
+        
+    // }
+    return data;
+}
+
+function project1Task1Plot3() {
+    let rA = 40000;
+    let rAprime = rA * 1/5;
+    let xrange = ArrayModule.arange(1.5, 10, 0.1); // rBrARange
+    let yrange = ArrayModule.arange(1.5, 10, 0.1); // rBprimeRARange
+    let data = project1Task1(rA, rAprime, xrange, yrange);
+    data.plot_layout.title = 'Plot 3 - rA\' / rA = 1/5'
     // data.plot_data.contours = {
         
     // }
@@ -64,8 +106,8 @@ function project1Task1(rA, rAprime, xrange, yrange) {
             );
             
             let deltaV2 = (
-                Math.abs( endOrbit.velocityAtTheta(startTheta) - transferOrbit2.velocityAtTheta(startTheta) )
-                + Math.abs( transferOrbit2.velocityAtTheta(endTheta) - startOrbit.velocityAtTheta(endTheta) )
+                Math.abs( endOrbit.velocityAtTheta(startTheta) - transferOrbit2.velocityAtTheta(endTheta) )
+                + Math.abs( transferOrbit2.velocityAtTheta(startTheta) - startOrbit.velocityAtTheta(endTheta) )
             );
 
             let dvRatio = deltaV2/deltaV1;
@@ -107,6 +149,27 @@ function project1Task1(rA, rAprime, xrange, yrange) {
             r: 50,
             b: 65,
             t: 90,
+        },
+        title: 'rA\' / rA = ',
+        xaxis: {
+            title: {
+                text: 'rB / rA',
+                font: {
+                    family: 'Courier New, monospace',
+                    size: 18,
+                    color: '#7f7f7f'
+                }
+            },
+        },
+        yaxis: {
+            title: {
+                text: 'rB\' / rA',
+                font: {
+                    family: 'Courier New, monospace',
+                    size: 18,
+                    color: '#7f7f7f'
+                }
+            }   
         }
     };
         

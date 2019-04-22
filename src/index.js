@@ -101,6 +101,8 @@ function init() {
         { name: 'New Orbit', fn: () => {orbitController.newOrbit() }},
         { name: 'Make Demo Orbits', fn: () => {addDemoOrbits() }},
         { name: 'Run Task 1', fn: () => {runTask1() }},
+        { name: 'Run Task 2', fn: () => {runTask2() }},
+        { name: 'Run Task 3', fn: () => {runTask3() }},
         { name: 'Make Circular Orbits', fn: () => {addCircularOrbits() }},
         { name: 'Make Elliptical Orbits', fn: () => {addEllipticalOrbits() }},
         { name: 'TEST', fn: () => {project1Task1() }}
@@ -131,8 +133,58 @@ function runTask1() {
     } else {
         alert('Sorry! No Web Worker support...')
     }
-
 }
+
+function runTask2() {
+    if (typeof(Worker) !== 'undefined') {
+        // web worker support!
+
+        let worker = new Project1Worker();
+        worker.addEventListener('message', function(event) {
+
+            console.log('Back in main script: worker said: ', event.data);
+
+            if (event.data.cmd == 'project1task1plot2') {
+                let plotEl = document.getElementById('plot-panel');
+                Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
+                // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
+            }
+
+        }, false);
+
+        worker.postMessage({cmd: 'project1task1plot2'});
+        // worker.terminate();
+
+    } else {
+        alert('Sorry! No Web Worker support...')
+    }
+}
+
+function runTask3() {
+    if (typeof(Worker) !== 'undefined') {
+        // web worker support!
+
+        let worker = new Project1Worker();
+        worker.addEventListener('message', function(event) {
+
+            console.log('Back in main script: worker said: ', event.data);
+
+            if (event.data.cmd == 'project1task1plot3') {
+                let plotEl = document.getElementById('plot-panel');
+                Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
+                // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
+            }
+
+        }, false);
+
+        worker.postMessage({cmd: 'project1task1plot3'});
+        // worker.terminate();
+
+    } else {
+        alert('Sorry! No Web Worker support...')
+    }
+}
+
 
 function addCircularOrbits() {
     let smallCircularOrbit = new ThreeOrbit({elements: makeCircularElementsR(80000), name: 'Circular Orbit 1' })
@@ -277,6 +329,7 @@ function project1Task1() {
             // let dv = hohmannTransferDeltaV(startOrbit, endOrbit, 0);
             // let dvPrime = hohmannTransferDeltaV(startOrbit, endOrbit, Math.PI);
             let dvRatio = deltaV2/deltaV1;
+            console.log(dvRatio)
 
             orbitManager.addOrbit(startOrbit);
             orbitManager.addOrbit(endOrbit);
