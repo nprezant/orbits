@@ -23,8 +23,7 @@ var camera, scene, renderer, controls;
 var mainbody;
 var container;
 var tree;
-// var panelManager;
-var orbitController
+var orbitController;
 
 function init() {
 
@@ -111,79 +110,66 @@ function init() {
     
 }
 
-function runTask1() {
+function getProjectWorker() {
     if (typeof(Worker) !== 'undefined') {
         // web worker support!
 
-        let worker = new Project1Worker();
-        worker.addEventListener('message', function(event) {
-
-            console.log('Back in main script: worker said: ', event.data);
-
-            if (event.data.cmd == 'project1task1plot1') {
-                let plotEl = document.getElementById('plot-panel');
-                Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
-                // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
-            }
-
-        }, false);
-
-        worker.postMessage({cmd: 'project1task1plot1'});
-        // worker.terminate();
+        return new Project1Worker();
 
     } else {
-        alert('Sorry! No Web Worker support...')
+        alert('Sorry! No Web Worker support...');
     }
+}
+
+function runTask1() {
+
+    let worker = getProjectWorker();
+    worker.addEventListener('message', function(event) {
+
+        if (event.data.cmd == 'project1task1plot1') {
+            let plotEl = document.getElementById('plot-panel');
+            Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
+            // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
+        }
+
+    }, false);
+
+    worker.postMessage({cmd: 'project1task1plot1'});
+    // worker.terminate();
+
 }
 
 function runTask2() {
-    if (typeof(Worker) !== 'undefined') {
-        // web worker support!
 
-        let worker = new Project1Worker();
-        worker.addEventListener('message', function(event) {
+    let worker = getProjectWorker();
+    worker.addEventListener('message', function(event) {
 
-            console.log('Back in main script: worker said: ', event.data);
+        if (event.data.cmd == 'project1task1plot2') {
+            let plotEl = document.getElementById('plot-panel');
+            Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
+            // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
+        }
 
-            if (event.data.cmd == 'project1task1plot2') {
-                let plotEl = document.getElementById('plot-panel');
-                Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
-                // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
-            }
+    }, false);
 
-        }, false);
+    worker.postMessage({cmd: 'project1task1plot2'});
 
-        worker.postMessage({cmd: 'project1task1plot2'});
-        // worker.terminate();
-
-    } else {
-        alert('Sorry! No Web Worker support...')
-    }
 }
 
 function runTask3() {
-    if (typeof(Worker) !== 'undefined') {
-        // web worker support!
 
-        let worker = new Project1Worker();
-        worker.addEventListener('message', function(event) {
+    let worker = getProjectWorker();
+    worker.addEventListener('message', function(event) {
 
-            console.log('Back in main script: worker said: ', event.data);
+        if (event.data.cmd == 'project1task1plot3') {
+            let plotEl = document.getElementById('plot-panel');
+            Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
+            // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
+        }
 
-            if (event.data.cmd == 'project1task1plot3') {
-                let plotEl = document.getElementById('plot-panel');
-                Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
-                // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
-            }
+    }, false);
 
-        }, false);
-
-        worker.postMessage({cmd: 'project1task1plot3'});
-        // worker.terminate();
-
-    } else {
-        alert('Sorry! No Web Worker support...')
-    }
+    worker.postMessage({cmd: 'project1task1plot3'});
 }
 
 function addMoonOrbit() {
