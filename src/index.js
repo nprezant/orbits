@@ -85,7 +85,8 @@ function init() {
         'panel-holder',
         {
             prop_viewer: 'Property Viewer',
-            prop_editor: 'Property Editor'
+            prop_editor: 'Property Editor',
+            plotter: 'Plotter'
         }
     );
     orbitController = new OrbitController(orbitManager, panelManager);
@@ -129,7 +130,7 @@ function runTask1() {
         if (event.data.cmd == 'project1task1plot1') {
             let plotEl = document.getElementById('plot-panel');
             Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
-            // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
+            orbitController.panelManager.setDatGUI('plotter', plotEl);
         }
 
     }, false);
@@ -147,7 +148,7 @@ function runTask2() {
         if (event.data.cmd == 'project1task1plot2') {
             let plotEl = document.getElementById('plot-panel');
             Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
-            // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
+            orbitController.panelManager.setDatGUI('plotter', plotEl);
         }
 
     }, false);
@@ -164,7 +165,7 @@ function runTask3() {
         if (event.data.cmd == 'project1task1plot3') {
             let plotEl = document.getElementById('plot-panel');
             Plotly.newPlot(plotEl, event.data.plot_data, event.data.plot_layout);
-            // orbitController.panelManager.setDatGUI('prop_viewer', plotEl);
+            orbitController.panelManager.setDatGUI('plotter', plotEl);
         }
 
     }, false);
