@@ -100,12 +100,13 @@ function init() {
         { name: 'Resume Time', fn: () => { orbitManager.resumeAll() }},
         { name: 'New Orbit', fn: () => {orbitController.newOrbit() }},
         { name: 'Make Demo Orbits', fn: () => {addDemoOrbits() }},
-        { name: 'Run Task 1', fn: () => {runTask1() }},
-        { name: 'Run Task 2', fn: () => {runTask2() }},
-        { name: 'Run Task 3', fn: () => {runTask3() }},
-        { name: 'Make Circular Orbits', fn: () => {addCircularOrbits() }},
-        { name: 'Make Elliptical Orbits', fn: () => {addEllipticalOrbits() }},
-        { name: 'TEST', fn: () => {project1Task1() }}
+        { name: 'Make Plot 1', fn: () => {runTask1() }},
+        { name: 'Make Plot 2', fn: () => {runTask2() }},
+        { name: 'Make Plot 3', fn: () => {runTask3() }},
+        { name: 'Test Circular Orbits', fn: () => {addCircularOrbits() }},
+        { name: 'Test Elliptical Orbits', fn: () => {addEllipticalOrbits() }},
+        { name: 'Test Task 1', fn: () => {project1Task1() }},
+        { name: 'Make MOON', fn: () => {addMoonOrbit() }}
       ]);
     
 }
@@ -183,6 +184,10 @@ function runTask3() {
     } else {
         alert('Sorry! No Web Worker support...')
     }
+}
+
+function addMoonOrbit() {
+    orbitController.addExistingOrbit(new ThreeOrbit({elements: makeEllipticalElementsR(363104, 405696), name: 'MOON'}))
 }
 
 
