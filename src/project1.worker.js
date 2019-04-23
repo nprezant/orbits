@@ -101,13 +101,13 @@ function project1Task1(rA, rAprime, xrange, yrange) {
             let transferOrbit2 = new OrbitModule.Orbit({elements: OrbitModule.makeHohmannTransfer(startOrbit, endOrbit, endTheta), name: 'Transfer Orbit2 '});
 
             let deltaV1 = (
-                Math.abs( endOrbit.velocityAtTheta(endTheta) - transferOrbit1.velocityAtTheta(endTheta) )
-                + Math.abs( transferOrbit1.velocityAtTheta(startTheta) - startOrbit.velocityAtTheta(startTheta) )
+                Math.abs( endOrbit.velocityAtTheta(endOrbit.elements.omega + endTheta) - transferOrbit1.velocityAtTheta(transferOrbit1.elements.omega + endTheta) )
+                + Math.abs( transferOrbit1.velocityAtTheta(startTheta) - startOrbit.velocityAtTheta(startOrbit.elements.omega + startTheta) )
             );
             
             let deltaV2 = (
-                Math.abs( endOrbit.velocityAtTheta(startTheta) - transferOrbit2.velocityAtTheta(endTheta) )
-                + Math.abs( transferOrbit2.velocityAtTheta(startTheta) - startOrbit.velocityAtTheta(endTheta) )
+                Math.abs( endOrbit.velocityAtTheta(endOrbit.elements.omega + startTheta) - transferOrbit2.velocityAtTheta(transferOrbit2.elements.omega + startTheta) )
+                + Math.abs( transferOrbit2.velocityAtTheta(transferOrbit2.elements.omega + endTheta) - startOrbit.velocityAtTheta(startOrbit.elements.omega + endTheta) )
             );
 
             let dvRatio = deltaV2/deltaV1;
