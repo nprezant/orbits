@@ -16,6 +16,7 @@ import Project1Worker from './project1.worker';
 import { OrbitController } from './OrbitController';
 import { makeCircularElementsR, makeEllipticalElementsR, makeHohmannTransfer, hohmannTransferDeltaV } from './orbit';
 import { arange } from './js/helpers/arrays';
+import { lambertOrbitElements } from './lambert';
 
 
 var orbitManager;
@@ -86,7 +87,7 @@ function init() {
         {
             prop_viewer: 'Property Viewer',
             prop_editor: 'Property Editor',
-            plotter: 'Plotter'
+            plotter: 'Plotter',
         }
     );
     orbitController = new OrbitController(orbitManager, panelManager);
@@ -100,13 +101,19 @@ function init() {
         { name: 'Resume Time', fn: () => { orbitManager.resumeAll() }},
         { name: 'New Orbit', fn: () => {orbitController.newOrbit() }},
         { name: 'Make Demo Orbits', fn: () => {addDemoOrbits() }},
-        { name: 'Make Plot 1', fn: () => {runTask1() }},
-        { name: 'Make Plot 2', fn: () => {runTask2() }},
-        { name: 'Make Plot 3', fn: () => {runTask3() }},
+        { name: 'Task 1 Plot 1', fn: () => {runTask1Plot1() }},
+        { name: 'Task 1 Plot 2', fn: () => {runTask1Plot2() }},
+        { name: 'Task 1 Plot 3', fn: () => {runTask1Plot3() }},
+        { name: 'Task 2 Plot 1', fn: () => {runTask2Plot1() }},
+        { name: 'Task 2 Plot 2', fn: () => {runTask2Plot2() }},
+        { name: 'Task 3 Plot', fn: () => {runTask3Plot() }},
+        { name: 'Task 3 Table', fn: () => {runTask3Table() }},
         { name: 'Test Circular Orbits', fn: () => {addCircularOrbits() }},
         { name: 'Test Elliptical Orbits', fn: () => {addEllipticalOrbits() }},
-        { name: 'Test Task 1', fn: () => {project1Task1() }},
-        { name: 'Make MOON', fn: () => {addMoonOrbit() }}
+        { name: 'Compare Hohman Transfers', fn: () => {project1Task1() }},
+        { name: 'Make MOON', fn: () => {addMoonOrbit() }},
+        { name: 'Demo Chase Maneuver', fn: () => {addChaseManeuver() }},
+        { name: 'Demo Chase Maneuver (Notes)', fn: () => {addNotesLambert() }},
       ]);
     
 }
@@ -122,7 +129,7 @@ function getProjectWorker() {
     }
 }
 
-function runTask1() {
+function runTask1Plot1() {
 
     let worker = getProjectWorker();
     worker.addEventListener('message', function(event) {
@@ -140,7 +147,7 @@ function runTask1() {
 
 }
 
-function runTask2() {
+function runTask1Plot2() {
 
     let worker = getProjectWorker();
     worker.addEventListener('message', function(event) {
@@ -157,7 +164,7 @@ function runTask2() {
 
 }
 
-function runTask3() {
+function runTask1Plot3() {
 
     let worker = getProjectWorker();
     worker.addEventListener('message', function(event) {
@@ -171,6 +178,74 @@ function runTask3() {
     }, false);
 
     worker.postMessage({cmd: 'project1task1plot3'});
+}
+
+function runTask2Plot1() {
+
+    let worker = getProjectWorker();
+    worker.addEventListener('message', function(event) {
+
+        if (event.data.cmd == 'task2') {
+            let plotEl = document.getElementById('plot-panel');
+            Plotly.newPlot(plotEl, event.data[0].data, event.data[0].layout);
+            orbitController.panelManager.setDatGUI('plotter', plotEl);
+        }
+
+    }, false);
+
+    worker.postMessage({cmd: 'task2'});
+}
+
+function runTask2Plot2() {
+
+    let worker = getProjectWorker();
+    worker.addEventListener('message', function(event) {
+
+        if (event.data.cmd == 'task2') {
+            let plotEl = document.getElementById('plot-panel');
+            Plotly.newPlot(plotEl, event.data[1].data, event.data[1].layout);
+            orbitController.panelManager.setDatGUI('plotter', plotEl);
+        }
+
+    }, false);
+
+    worker.postMessage({cmd: 'task2'});
+}
+
+function runTask3Plot() {
+
+    let worker = getProjectWorker();
+    worker.addEventListener('message', function(event) {
+
+        if (event.data.cmd == 'task3') {
+            let plotEl = document.getElementById('plot-panel');
+            Plotly.newPlot(plotEl, event.data.data, event.data.layout);
+            orbitController.panelManager.setDatGUI('plotter', plotEl);
+        }
+
+    }, false);
+
+    worker.postMessage({cmd: 'task3'});
+}
+
+function runTask3Table() {
+
+    let worker = getProjectWorker();
+    worker.addEventListener('message', function(event) {
+
+        if (event.data.cmd == 'task3') {
+            let tbl = document.getElementById('plot-panel');
+            tbl.innerText = '';
+            let csv = event.data.tableData;
+            for (const row of csv) {
+                tbl.innerText += '\n' + row[0] + ', ' + row[1] + ', ' + row[2] + ', ' + row[3];
+            }
+            orbitController.panelManager.setDatGUI('plotter', tbl);
+        }
+
+    }, false);
+
+    worker.postMessage({cmd: 'task3'});
 }
 
 function addMoonOrbit() {
@@ -212,6 +287,35 @@ function addDemoOrbits() {
     var orbit3 = new ThreeOrbit({pv: [rvec, vvec4], name: 'Mountain', paused: false});
     orbitManager.addOrbit(orbit3);
 
+}
+
+function addChaseManeuver() {
+
+    let satellite1Elements = makeEllipticalElementsR(8100, 18900);
+    satellite1Elements.theta = 45 * Math.PI / 180;
+
+    let satellite2Elements = satellite1Elements.clone();
+    satellite2Elements.theta = 150 * Math.PI / 180;
+
+    let satellite1 = new ThreeOrbit({elements: satellite1Elements, name: 'Satellite 1' });
+    let satellite2 = new ThreeOrbit({elements: satellite2Elements, name: 'Satellite 2' });
+
+    let satellite2Time2Orbit = satellite2.orbit.clone();
+    satellite2Time2Orbit.timeSincePerigee = satellite2Time2Orbit.timeSincePerigee + 1*60*60; // 1 hour later
+    let satellite2Time2 = new ThreeOrbit({elements: satellite2Time2Orbit.elements, name: 'Satellite 2' });
+
+    let chase = new ThreeOrbit({ elements: lambertOrbitElements(satellite1.orbit.rvec, satellite2Time2.orbit.rvec, 60*60), name: 'Chase Orbit' });
+
+    orbitManager.addOrbit(satellite1);
+    orbitManager.addOrbit(satellite2);
+    orbitManager.addOrbit(satellite2Time2);
+    orbitManager.addOrbit(chase);
+
+}
+
+function addNotesLambert() {
+    let chase = new ThreeOrbit({ elements: lambertOrbitElements(new THREE.Vector3(-3600, 3600, 5100), new THREE.Vector3(-5500, -6240, -520), 20*60) });
+    orbitManager.addOrbit(chase);
 }
 
 function createTree() {

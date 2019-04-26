@@ -94,6 +94,16 @@ export class Orbit {
         return Math.sqrt(this.radialVelocityAtTheta(theta)**2 + this.azimuthatVelocityAtTheta(theta)**2);
     }
 
+    get rvec() {
+        var [rvec, vvec] = elements_to_pv(this.elements);
+        return rvec;
+    }
+
+    get vvec() {
+        var [rvec, vvec] = elements_to_pv(this.elements);
+        return vvec;
+    }
+
     getpv() {
         // gets the IJK frame position, velocity vector
         // update the internal saved state to match both pv and elements
@@ -102,7 +112,7 @@ export class Orbit {
     }
 
     clone() {
-        return new Orbit(this.elements);
+        return new Orbit({elements: this.elements});
     }
 
 }
@@ -159,12 +169,12 @@ export class ClassicalOrbitalElements {
     }
 }
 
-function vec3_mag(vec3) {
+export function vec3_mag(vec3) {
     // computes magnitude of a THREE.Vector3 object
     return Math.sqrt(vec3.dot(vec3));
 }
 
-function pv_to_elements(rvec, vvec) {
+export function pv_to_elements(rvec, vvec) {
     // find orbital elements from the position and velocity vectors
     // given in a geocentric equatorial frame
     //
@@ -340,7 +350,7 @@ function elements_at_time(elements, time) {
     return new_el;    
 }
 
-function newtons_method(f, fprime, guess, max_iter=100, threshold=0.0001) {
+export function newtons_method(f, fprime, guess, max_iter=100, threshold=0.0001) {
     // use newtons method to solve an equation.
     // f: function
     // fprime: function derivative
@@ -358,7 +368,7 @@ function newtons_method(f, fprime, guess, max_iter=100, threshold=0.0001) {
         val = f(x);
         valprime = fprime(x);
         x = x - val/valprime;
-        if (x <= threshold) {
+        if (Math.abs(val/valprime) <= threshold) {
             break;
         }
     }
@@ -426,17 +436,29 @@ export function makeHohmannTransfer(startOrbit, endOrbit, startTheta=0) {
     return elements
 }
 
-export function hohmannTransferDeltaV(startOrbit, endOrbit, startTheta) {
+export function hohmannTransferDeltaV(startOrbit, endOrbit, startAngle) {
     // finds the delta V required in a hohmann transfer
     
-    let transferOrbit = new Orbit({elements:makeHohmannTransfer(startOrbit, endOrbit, startTheta)});
-    let endTheta = startTheta + Math.PI; // 180 degrees
-    
+    let transferOrbit = new Orbit({elements:makeHohmannTransfer(startOrbit, endOrbit, startAngle)});
+    let endAngle = startAngle + Math.PI; // 180 degrees
+
     let deltaV = (
-        Math.abs( endOrbit.velocityAtTheta(endTheta) - transferOrbit.velocityAtTheta(endTheta) )
-        + Math.abs( transferOrbit.velocityAtTheta(startTheta) - startOrbit.velocityAtTheta(startTheta) )
-    )
+        Math.abs( endOrbit.velocityAtTheta(-endOrbit.elements.omega + endAngle) - transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + endAngle) )
+        + Math.abs( transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + startAngle) - startOrbit.velocityAtTheta(-startOrbit.elements.omega + startAngle) )
+    );
 
     return deltaV;
 
 }
+
+export function transferDeltaV(startOrbit, endOrbit, transferOrbit, geocentricStartAngle, geocentricEndAngle) {
+    let deltaV = (
+        Math.abs( endOrbit.velocityAtTheta(-endOrbit.elements.omega + geocentricEndAngle) - transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + geocentricStartAngle) )
+        + Math.abs( transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + geocentricStartAngle) - startOrbit.velocityAtTheta(-startOrbit.elements.omega + geocentricEndAngle) )
+    );
+    
+    return deltaV;
+}
+
+
+

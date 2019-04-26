@@ -426,7 +426,7 @@ export class ThreeOrbit extends THREE.Group {
         } );
 
         // body geometry
-        var geometry = new THREE.BoxBufferGeometry( 5000, 5000, 5000 );
+        var geometry = new THREE.BoxBufferGeometry( 2000, 2000, 2000 );
 
         // body mesh
         this.bodymesh = new THREE.Mesh( geometry, material );
