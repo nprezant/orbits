@@ -3,6 +3,9 @@ import * as THREE from 'three';
 import TrackballControls from './js/controls/TrackballControls';
 
 import ContextMenu from './js/context-menu/context-menu';
+import Toolbar from './js/toolbar/toolbar';
+import addOrbitIcon from './icons/toolbar/add_orbit.png';
+import addOrbitIconHover from './icons/toolbar/add_orbit_hover.png';
 
 import InspireTree from 'inspire-tree';
 import InspireTreeDOM from 'inspire-tree-dom';
@@ -115,6 +118,15 @@ function init() {
         { name: 'Demo Chase Maneuver', fn: () => {addChaseManeuver() }},
         { name: 'Demo Chase Maneuver (Notes)', fn: () => {addNotesLambert() }},
       ]);
+
+    // toolbar
+    let toolbarElement = document.createElement( 'div' );
+    document.body.appendChild( toolbarElement );
+    let toolbar = new Toolbar({element: toolbarElement, sideClass: 'toolbar-left', buttons: [
+        {fn: () => {alert('hi')}, icon: addOrbitIcon, icon_hover: addOrbitIconHover},
+        {fn: () => {alert('hi')}, icon: addOrbitIcon, icon_hover: addOrbitIconHover},
+        {fn: () => {alert('hi')}, icon: addOrbitIcon, icon_hover: addOrbitIconHover},
+    ]});
     
 }
 
