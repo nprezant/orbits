@@ -2,7 +2,6 @@
 import * as THREE from 'three';
 import TrackballControls from './js/controls/TrackballControls';
 
-import ContextMenu from './js/context-menu/context-menu';
 import Toolbar from './js/toolbar/toolbar';
 import addOrbitIcon from './icons/toolbar/add_orbit.png';
 import addOrbitIconHover from './icons/toolbar/add_orbit_hover.png';
@@ -20,6 +19,7 @@ import { OrbitController } from './OrbitController';
 import { makeCircularElementsR, makeEllipticalElementsR, makeHohmannTransfer, hohmannTransferDeltaV } from './orbit';
 import { arange } from './js/helpers/arrays';
 import { lambertOrbitElements } from './lambert';
+import SearchBar, { SearchItem } from './js/search-bar/search-bar';
 
 
 var orbitManager;
@@ -98,27 +98,6 @@ function init() {
     // event listeners
     window.addEventListener( 'resize', onWindowResize, false );
 
-    // context menu
-    var menu = new ContextMenu('canvas', [
-        { name: 'Pause Time', fn: () => { orbitManager.pauseAll() }},
-        { name: 'Resume Time', fn: () => { orbitManager.resumeAll() }},
-        { name: 'New Orbit', fn: () => {orbitController.newOrbit() }},
-        { name: 'Make Demo Orbits', fn: () => {addDemoOrbits() }},
-        { name: 'Task 1 Plot 1', fn: () => {runTask1Plot1() }},
-        { name: 'Task 1 Plot 2', fn: () => {runTask1Plot2() }},
-        { name: 'Task 1 Plot 3', fn: () => {runTask1Plot3() }},
-        { name: 'Task 2 Plot 1', fn: () => {runTask2Plot1() }},
-        { name: 'Task 2 Plot 2', fn: () => {runTask2Plot2() }},
-        { name: 'Task 3 Plot', fn: () => {runTask3Plot() }},
-        { name: 'Task 3 Table', fn: () => {runTask3Table() }},
-        { name: 'Test Circular Orbits', fn: () => {addCircularOrbits() }},
-        { name: 'Test Elliptical Orbits', fn: () => {addEllipticalOrbits() }},
-        { name: 'Compare Hohman Transfers', fn: () => {project1Task1() }},
-        { name: 'Make MOON', fn: () => {addMoonOrbit() }},
-        { name: 'Demo Chase Maneuver', fn: () => {addChaseManeuver() }},
-        { name: 'Demo Chase Maneuver (Notes)', fn: () => {addNotesLambert() }},
-      ]);
-
     // toolbar
     let toolbarElement = document.createElement( 'div' );
     document.body.appendChild( toolbarElement );
@@ -127,6 +106,27 @@ function init() {
         {fn: () => {alert('hi')}, icon: addOrbitIcon, icon_hover: addOrbitIconHover},
         {fn: () => {alert('hi')}, icon: addOrbitIcon, icon_hover: addOrbitIconHover},
     ]});
+
+    let searchBar = new SearchBar([
+        new SearchItem('Pause Time', ()=>{orbitManager.pauseAll()}),
+        new SearchItem('Resume Time', ()=>{orbitManager.resumeAll()}),
+        new SearchItem('New Orbit', ()=>{orbitController.newOrbit()}),
+        new SearchItem('Small Demo Orbits', ()=>{addDemoOrbits()}),
+        new SearchItem('Circular Demo Orbits', ()=>{addCircularOrbits()}),
+        new SearchItem('Elliptical Demo Orbits', ()=>{addEllipticalOrbits()}),
+        new SearchItem('Compare Hohman Transfers', ()=>{project1Task1()}),
+        new SearchItem('Moon Orbit', ()=>{addMoonOrbit()}),
+        new SearchItem('Demo Chase Maneuver', ()=>{addChaseManeuver()}),
+        new SearchItem('Demo Chase Maneuver (Notes)', ()=>{addNotesLambert()}),
+        new SearchItem('Task 1 Plot 1', ()=>{runTask1Plot1()}),
+        new SearchItem('Task 1 Plot 2', ()=>{runTask1Plot2()}),
+        new SearchItem('Task 1 Plot 3', ()=>{runTask1Plot3()}),
+        new SearchItem('Task 2 Plot 1', ()=>{runTask2Plot1()}),
+        new SearchItem('Task 2 Plot 2', ()=>{runTask1Plot1()}),
+        new SearchItem('Task 3 Plot', ()=>{runTask3Plot()}),
+        new SearchItem('Task 3 Table', ()=>{runTask3Table()}),
+        new SearchItem('Hello', ()=>{alert('Hello')}),
+    ]);
     
 }
 
