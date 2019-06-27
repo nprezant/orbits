@@ -2,9 +2,11 @@
 import * as THREE from 'three';
 import TrackballControls from './js/controls/TrackballControls';
 
-import Toolbar from './js/toolbar/toolbar';
+import Toolbar, { ToolbarItem } from './js/toolbar/toolbar';
 import addOrbitIcon from './icons/toolbar/add_orbit.png';
-import addOrbitIconHover from './icons/toolbar/add_orbit_hover.png';
+import pauseTimeIcon from './icons/toolbar/pause_time.png';
+import resumeTimeIcon from './icons/toolbar/resume_time.png';
+import addManyOrbitsIcon from './icons/toolbar/add_many_orbits.png';
 
 import InspireTree from 'inspire-tree';
 import InspireTreeDOM from 'inspire-tree-dom';
@@ -99,13 +101,13 @@ function init() {
     window.addEventListener( 'resize', onWindowResize, false );
 
     // toolbar
-    let toolbarElement = document.createElement( 'div' );
-    document.body.appendChild( toolbarElement );
-    let toolbar = new Toolbar({element: toolbarElement, sideClass: 'toolbar-left', buttons: [
-        {fn: () => {alert('hi')}, icon: addOrbitIcon, icon_hover: addOrbitIconHover},
-        {fn: () => {alert('hi')}, icon: addOrbitIcon, icon_hover: addOrbitIconHover},
-        {fn: () => {alert('hi')}, icon: addOrbitIcon, icon_hover: addOrbitIconHover},
-    ]});
+    
+    let toolbar = new Toolbar('toolbar-left', [
+        new ToolbarItem(resumeTimeIcon, ()=>{orbitManager.resumeAll()}),
+        new ToolbarItem(pauseTimeIcon, ()=>{orbitManager.pauseAll()}),
+        new ToolbarItem(addOrbitIcon, ()=>{orbitController.newOrbit()}),
+        new ToolbarItem(addManyOrbitsIcon, ()=>{addCircularOrbits()}),
+    ]);
 
     let searchBar = new SearchBar([
         new SearchItem('Pause Time', ()=>{orbitManager.pauseAll()}),
