@@ -26,6 +26,7 @@ export default class SearchBar{
         this.input.type = 'text';
         this.input.id = 'search-input';
         this.input.placeholder = 'Search';
+        this.input.spellcheck = false;
         this.input.addEventListener('keyup', this.handleKeys, false);
         this.searchBar.appendChild(this.input);
 
