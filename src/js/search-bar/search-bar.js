@@ -83,6 +83,7 @@ export default class SearchBar{
     runSelectedSearchResult() {
         let li = searchBar.displayList.querySelector('.selected');
         li.dispatchEvent(new MouseEvent("pointerup", {bubbles: true}));
+        searchBar.handleUnfocus();
     }
 
     moveSelectedSearchResult(direction) {
@@ -108,6 +109,7 @@ export default class SearchBar{
 
     handleUnfocus() {
         this.clearList();
+        searchBar.input.value = '';
         searchBar.input.blur();
     }
 
