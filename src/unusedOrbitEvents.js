@@ -162,3 +162,63 @@ function getIntersects( x, y ) {
 // ****************************
 // Selection
 // ****************************
+
+
+function project1Task1() {
+
+    let rA = 40000;
+    let rAprime = rA * 5;
+    let xrange = arange(5.5, 10, 5); // rBrARange
+    let yrange = arange(1.5, 10, 8); // rBprimeRARange
+
+    xrange = [5.5];
+    yrange = [1.5];
+
+    let count = 0;
+
+    for (const rBprimeRA of yrange) {
+        
+        let constYColumn = [];
+
+        for (const rBrA of xrange) {
+
+            let r0degA = rA;
+            let r180degA = rAprime;
+
+            let r0degB = rBprimeRA * rA;
+            let r180degB = rBrA * rA;
+
+            let startOrbit = new ThreeOrbit({elements:makeEllipticalElementsR(r0degA, r180degA), name: 'Start Orbit ' + count});
+            let endOrbit = new ThreeOrbit({elements:makeEllipticalElementsR(r0degB, r180degB), name: 'End Orbit ' + count});
+
+            let startTheta = 0;
+            let endTheta = startTheta + Math.PI; // 180 degrees
+            let transferOrbit1 = new ThreeOrbit({elements:makeHohmannTransfer(startOrbit.orbit, endOrbit.orbit, startTheta), name: 'Transfer Orbit1 ' + count});
+            let transferOrbit2 = new ThreeOrbit({elements:makeHohmannTransfer(startOrbit.orbit, endOrbit.orbit, endTheta), name: 'Transfer Orbit2 ' + count});
+
+            let deltaV1 = (
+                Math.abs( endOrbit.orbit.velocityAtTheta(endTheta) - transferOrbit1.orbit.velocityAtTheta(endTheta) )
+                + Math.abs( transferOrbit1.orbit.velocityAtTheta(startTheta) - startOrbit.orbit.velocityAtTheta(startTheta) )
+            );
+            
+            let deltaV2 = (
+                Math.abs( endOrbit.orbit.velocityAtTheta(startTheta) - transferOrbit2.orbit.velocityAtTheta(startTheta) )
+                + Math.abs( transferOrbit2.orbit.velocityAtTheta(endTheta) - startOrbit.orbit.velocityAtTheta(endTheta) )
+            );
+
+            // let dv = hohmannTransferDeltaV(startOrbit, endOrbit, 0);
+            // let dvPrime = hohmannTransferDeltaV(startOrbit, endOrbit, Math.PI);
+            let dvRatio = deltaV2/deltaV1;
+            console.log(dvRatio)
+
+            orbitManager.addOrbit(startOrbit);
+            orbitManager.addOrbit(endOrbit);
+            orbitManager.addOrbit(transferOrbit1);
+            orbitManager.addOrbit(transferOrbit2);
+
+            count++;
+
+        }
+
+    }
+}

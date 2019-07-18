@@ -1,6 +1,6 @@
-const ArrayModule = require('./js/helpers/arrays');
-const OrbitModule = require('./orbit');
-const lambert = require('./lambert');
+const ArrayModule = require('../helpers/arrays');
+const OrbitModule = require('../../orbit');
+const lambert = require('../../lambert');
 
 self.addEventListener('message', function(event) {
     
