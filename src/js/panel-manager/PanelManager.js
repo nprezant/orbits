@@ -1,4 +1,5 @@
 import './PanelManager.css';
+import Panel from '../panel/panel';
 
 class PanelManager {
     // manages panels within a window
@@ -12,28 +13,12 @@ class PanelManager {
 
         for (const [codename, prettyname] of Object.entries(paneldict)) {
 
-            // main panel div
-            let panel = document.createElement('div');
-            panel.classList.add('panel', codename);
-            this.container.appendChild(panel);
+            // make a panel for each dictionary entry
+            let panel = new Panel({name: prettyname});
+            panel.DOM.classList.add(codename);
+
+            this.container.appendChild(panel.DOM);
             this.panels[codename] = panel;
-
-            // panel header
-            let header = document.createElement('div');
-            header.classList.add('panel-header');
-            panel.appendChild(header);
-
-            // title of panel
-            let title = document.createElement('div');
-            title.classList.add('panel-title');
-            title.innerText = prettyname;
-            header.append(title);
-
-            // close button
-            let btn = document.createElement('button');
-            btn.classList.add('x-button');
-            btn.addEventListener('pointerup', () => this.hidepanel(codename), false)
-            header.append(btn);
 
             this.hidepanel(codename);
 
@@ -50,7 +35,7 @@ class PanelManager {
         } finally {
             datDOM.classList.add('panel-dat');
             this.removeClassedNodes(datDOM, 'close-button');
-            this.panels[codename].appendChild(datDOM);
+            this.panels[codename].DOM.appendChild(datDOM);
             this.showpanel(codename);
         }
     }
@@ -58,7 +43,7 @@ class PanelManager {
     removeDatGUI(codename) {
         // removes the dat gui from the CODENAME panel
         this.hidepanel(codename);
-        this.removeClassedNodes(this.panels[codename], 'panel-dat');
+        this.removeClassedNodes(this.panels[codename].DOM, 'panel-dat');
     }
 
     removeClassedNodes(parent, cls) {
@@ -70,12 +55,12 @@ class PanelManager {
 
     showpanel(codename) {
         // shows the panel with this CODENAME
-        this.panels[codename].style.display = 'flex';
+        this.panels[codename].show();
     }
 
     hidepanel(codename) {
         // hides the panel with this CODENAME
-        this.panels[codename].style.display = 'none';
+        this.panels[codename].hide();
     }
 
     destroyPanel(codename) {
