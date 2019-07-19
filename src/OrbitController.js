@@ -53,7 +53,7 @@ export class OrbitController {
 
 }
 
-function viewOrbitProperties(gui, orbit3) {
+export function viewOrbitProperties(gui, orbit3) {
     
     // name
     gui.add( orbit3, 'name' );
@@ -87,7 +87,7 @@ function viewOrbitProperties(gui, orbit3) {
     gui.add(params, 'Edit');
 }
 
-function editOrbitProperties( gui, orbit3 ) {
+export function editOrbitProperties( gui, orbit3 ) {
 
     // options for defining an ellipse: one of these folders is allowed at a time
     let definitionFolders = [
@@ -292,18 +292,6 @@ function generateHohmnannOrbit(orbit3, params) {
         params.additionalVars.startTheta
     ) });
 }
-        
-//             default:
-//                 break;
-//         }
-// }
-
-// function addFolderItems(defSelected) {
-//     // add items to folder based on the "definition" input selected
-
-//     let folder = gui.addFolder( defSelected );
-
-//     switch (defSelected) {
 
 function makePVFolder(folder, params) {
     addPVToFolder(params.currentState, folder, false) // don't listen
