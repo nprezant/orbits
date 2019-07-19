@@ -7,6 +7,8 @@
     margin: 0;
     overflow: overlay;
     padding-bottom: 3em;
+    position: absolute;
+    top: 20px;
 }
 
 .panel-header {
@@ -21,6 +23,8 @@
 .panel-title {
     display: flex;
     padding-left: 0.5em;
+    pointer-events: none;
+    .unselectable();
 }
 
 .x-button {
@@ -39,4 +43,11 @@
 .x-button:hover {
     color: #e7e7e7; /* gray */
     background-color: red;
+}
+
+.unselectable {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }

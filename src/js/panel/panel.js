@@ -26,6 +26,8 @@ export default class Panel {
         btn.addEventListener('pointerup', () => this.hide(), false)
         header.append(btn);
 
+        this.DOM.addEventListener('pointerdown', (e)=>{onPointerDown(e, this.DOM)}, false);
+
     }
 
     hide() {
@@ -36,4 +38,46 @@ export default class Panel {
         this.DOM.style.display = 'flex';
     }
 
+}
+
+function onPointerDown(e, parentDOM) {
+
+    // get a reference to the target we're dragging
+    let target = parentDOM;
+
+    // get pointer coordinates relative to target
+    let shiftX = e.clientX - target.getBoundingClientRect().left;
+    let shiftY = e.clientY - target.getBoundingClientRect().top;
+
+    // center the target at pageX, pageY coordinates
+    function moveAt(target, pageX, pageY) {
+        target.style.left = pageX - shiftX + 'px';
+        target.style.top = pageY - shiftY + 'px';
+    }
+    
+    function onPointerMove(e) {
+        moveAt(target, e.pageX, e.pageY);
+    }
+    
+    // prepare for moving
+    target.style.position = 'absolute';
+    target.style.zIndex = 1000;
+
+    // move target into the body to make it positioned relative to body
+    document.body.append(target);
+
+    // move the target under the cursor
+    moveAt(target, e.pageX, e.pageY);
+
+    // listen to move the target when the pointer moves
+    document.addEventListener('pointermove', onPointerMove, false);
+
+    // remove the added handlers when target is dropped
+    target.onpointerup = function() {
+        document.removeEventListener('pointermove', onPointerMove);
+        this.onpointerup = null;
+    }
+
+    // prevent the default drag handling
+    target.ondragstart = function() {return false};
 }

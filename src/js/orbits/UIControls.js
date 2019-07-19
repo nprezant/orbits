@@ -10,6 +10,9 @@ import addManyOrbitsIcon from '../../icons/toolbar/add_many_orbits.png';
 import Project1Runner from '../mae472-project/project1.runner';
 import OrbitDemos from '../orbits/demos';
 
+import OrbitPanel from './panels/OrbitPanel';
+import OrbitCreator from './panels/OrbitCreator';
+
 export default class UIControls {
     // Contains the user interface controls for controlling the orbital system
 
@@ -44,6 +47,8 @@ export default class UIControls {
             new SearchItem('Task 3 Plot', ()=>{project1Runner.runTask3Plot()}),
             new SearchItem('Task 3 Table', ()=>{project1Runner.runTask3Table()}),
             new SearchItem('Hello', ()=>{alert('Hello')}),
+            new SearchItem('Orbit Panel', ()=>{new OrbitPanel()}),
+            new SearchItem('Orbit Creater', ()=>{new OrbitCreator})
         ]);
     }
 }
