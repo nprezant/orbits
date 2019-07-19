@@ -1,4 +1,5 @@
 import './panel.less';
+import xMarkImg from './x_mark.png';
 
 export default class Panel {
     // creates a panel that can be dragged around the screen and closed
@@ -21,7 +22,8 @@ export default class Panel {
         header.append(title);
 
         // close button
-        let btn = document.createElement('button');
+        let btn = document.createElement('img');
+        btn.src = xMarkImg;
         btn.classList.add('x-button');
         btn.addEventListener('pointerup', () => this.hide(), false)
         header.append(btn);
