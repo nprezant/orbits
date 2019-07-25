@@ -8,7 +8,8 @@ class PanelManager {
     
     constructor(containerClass, paneldict) {
 
-        this.container = document.getElementsByClassName(containerClass)[0];
+        // this.container = document.getElementsByClassName(containerClass)[0];
+        this.container = document.body;
         this.panels = paneldict;
 
         for (const [codename, prettyname] of Object.entries(paneldict)) {
@@ -16,6 +17,7 @@ class PanelManager {
             // make a panel for each dictionary entry
             let panel = new Panel({name: prettyname});
             panel.DOM.classList.add(codename);
+            panel.alignNW();
 
             this.container.appendChild(panel.DOM);
             this.panels[codename] = panel;

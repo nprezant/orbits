@@ -40,6 +40,16 @@ export default class Panel {
         this.DOM.style.display = 'flex';
     }
 
+    center() {
+        this.DOM.style.top = document.body.getBoundingClientRect().height / 2 - this.DOM.getBoundingClientRect().height / 2 + 'px';
+        this.DOM.style.left = document.body.getBoundingClientRect().width / 2 - this.DOM.getBoundingClientRect().width / 2 + 'px';
+    }
+
+    alignNW() {
+        this.DOM.style.top = document.body.getBoundingClientRect().height / 4 + 'px';
+        this.DOM.style.left = document.body.getBoundingClientRect().width / 4 + 'px';
+    }
+
 }
 
 function onPointerDown(e, parentDOM) {
