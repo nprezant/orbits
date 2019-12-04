@@ -50,5 +50,7 @@ export default class UIControls {
             new SearchItem('Orbit Panel', ()=>{new OrbitPanel()}),
             new SearchItem('Orbit Creater', ()=>{new OrbitCreator})
         ]);
+
+        searchBar.input.placeholder = 'Try typing "demo"';
     }
 }
