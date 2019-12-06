@@ -25,13 +25,14 @@ export default class UIControls {
             new ToolbarItem(resumeTimeIcon, ()=>{system.orbitManager.resumeAll()}),
             new ToolbarItem(pauseTimeIcon, ()=>{system.orbitManager.pauseAll()}),
             new ToolbarItem(addOrbitIcon, ()=>{system.orbitController.newOrbit()}),
-            new ToolbarItem(addManyOrbitsIcon, ()=>{orbitDemos.addCircularOrbits()}),
+            new ToolbarItem(addManyOrbitsIcon, ()=>{orbitDemos.addPretty3DOrbits()}),
         ]);
 
         let searchBar = new SearchBar([
             new SearchItem('Pause Time', ()=>{system.orbitManager.pauseAll()}),
             new SearchItem('Resume Time', ()=>{system.orbitManager.resumeAll()}),
             new SearchItem('New Orbit', ()=>{system.orbitController.newOrbit()}),
+            new SearchItem('Electron Field-like Demo Orbits', ()=>{orbitDemos.addPretty3DOrbits()}),
             new SearchItem('Small Demo Orbits', ()=>{orbitDemos.addDemoOrbits()}),
             new SearchItem('Circular Demo Orbits', ()=>{orbitDemos.addCircularOrbits()}),
             new SearchItem('Elliptical Demo Orbits', ()=>{orbitDemos.addEllipticalOrbits()}),
