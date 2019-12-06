@@ -28,7 +28,7 @@ export default class Panel {
         btn.addEventListener('pointerup', () => this.hide(), false)
         header.append(btn);
 
-        this.DOM.addEventListener('pointerdown', (e)=>{onPointerDown(e, this.DOM)}, false);
+        header.addEventListener('pointerdown', (e)=>{onPointerDown(e, this.DOM)}, false);
 
     }
 
