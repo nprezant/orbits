@@ -48,7 +48,8 @@ export default class UIControls {
             new SearchItem('Task 3 Table', ()=>{project1Runner.runTask3Table()}),
             new SearchItem('Hello', ()=>{alert('Hello')}),
             new SearchItem('Orbit Panel', ()=>{new OrbitPanel()}),
-            new SearchItem('Orbit Creater', ()=>{new OrbitCreator})
+            new SearchItem('Orbit Creater', ()=>{new OrbitCreator}),
+            new SearchItem('Clear Orbits (Refresh Page)', ()=>{window.location.reload()})
         ]);
 
         searchBar.input.placeholder = 'Try typing "demo"';
