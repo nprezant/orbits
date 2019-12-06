@@ -7,6 +7,9 @@ import pauseTimeIcon from '../../icons/toolbar/pause_time.png';
 import resumeTimeIcon from '../../icons/toolbar/resume_time.png';
 import addManyOrbitsIcon from '../../icons/toolbar/add_many_orbits.png';
 
+import CornerElement from '../corner-element/corner-element';
+import githubIcon from '../../icons/github-icon.png';
+
 import Project1Runner from '../mae472-project/project1.runner';
 import OrbitDemos from '../orbits/demos';
 
@@ -54,5 +57,16 @@ export default class UIControls {
         ]);
 
         searchBar.input.placeholder = 'Try typing "demo"';
+
+        // link to the github page
+        let githubElement = new CornerElement('ne');
+        let githubLink = document.createElement('a');
+        let githubImage = document.createElement('img');
+        githubLink.appendChild(githubImage);
+        githubElement.DOM.appendChild(githubLink);
+        
+        githubLink.href = 'https://github.com/nprezant/orbits';
+        githubImage.src = githubIcon;
+        
     }
 }

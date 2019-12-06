@@ -10,3 +10,7 @@
 * Make orbits delete-able
 * Make satellites be things other than boxes
 * Make satellites resizable
+
+## Credits
+
+Github icon made by [Dave Gandy](https://www.flaticon.com/authors/dave-gandy)
