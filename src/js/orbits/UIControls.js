@@ -51,7 +51,7 @@ export default class UIControls {
             new SearchItem('Task 3 Plot', ()=>{project1Runner.runTask3Plot()}),
             new SearchItem('Task 3 Table', ()=>{project1Runner.runTask3Table()}),
             new SearchItem('Orbit Panel', ()=>{new OrbitPanel()}),
-            new SearchItem('Orbit Creater', ()=>{new OrbitCreator}),
+            new SearchItem('Orbit Creater', ()=>{new OrbitCreator()}),
             new SearchItem('Clear Orbits (Refresh Page)', ()=>{window.location.reload()}),
             new SearchItem('Help', ()=>{window.open('https://github.com/nprezant/orbits', '_blank')}),
             new SearchItem('Hello', ()=>{alert('Hello')}),
