@@ -80,4 +80,32 @@ export default class OrbitDemos {
         let chase = new ThreeOrbit({ elements: lambertOrbitElements(new THREE.Vector3(-3600, 3600, 5100), new THREE.Vector3(-5500, -6240, -520), 20*60) });
         this.orbitController.orbitManager.addOrbit(chase);
     }
+
+    addPretty3DOrbits() {
+        let rvec1 = new THREE.Vector3(90000, 80000, 10000);
+        let vvec1 = new THREE.Vector3(0, 1.5, 0.8);
+
+        let rvec2 = new THREE.Vector3(-50000, 0, 0);
+        let vvec2 = new THREE.Vector3(0, 0, 3);
+
+        let rvec3 = new THREE.Vector3(0, 50000, 0);
+        let vvec3 = new THREE.Vector3(0, 0, 3);
+
+        let rvec4 = new THREE.Vector3(35000, 35000, 0);
+        let vvec4 = new THREE.Vector3(0, 0, 3);
+
+        let rvec5 = new THREE.Vector3(62000, 0, 0);
+        let vvec5 = new THREE.Vector3(0, 2, 1);
+
+        let rvec6 = new THREE.Vector3(-50000, 0, 0);
+        let vvec6 = new THREE.Vector3(0, -2.8, 1);
+        
+        // this.orbitController.orbitManager.addOrbit(new ThreeOrbit({pv: [rvec1, vvec1], name: '1'}));
+        this.orbitController.orbitManager.addOrbit(new ThreeOrbit({pv: [rvec2, vvec2], name: 'X Plane'}));
+        this.orbitController.orbitManager.addOrbit(new ThreeOrbit({pv: [rvec3, vvec3], name: 'Y Plane'}));
+        this.orbitController.orbitManager.addOrbit(new ThreeOrbit({pv: [rvec4, vvec4], name: '45 Degree'}));
+        this.orbitController.orbitManager.addOrbit(new ThreeOrbit({pv: [rvec5, vvec5], name: 'Z Plane'}));
+        this.orbitController.orbitManager.addOrbit(new ThreeOrbit({pv: [rvec6, vvec6], name: 'Z Plane'}));
+        
+    }
 }

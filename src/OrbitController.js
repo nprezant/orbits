@@ -1,4 +1,5 @@
 import * as dat from 'dat.gui';
+import * as THREE from 'three';
 import { ThreeOrbit, OrbitalState } from './three-orbit';
 import { 
     Orbit,
@@ -227,7 +228,7 @@ function closeFolders(gui, openFolders) {
 //         switch (defdropdown.getValue()) {
 
 function generatePVOrbit(orbit3, params) {
-    currentState = params.currentState;
+    let currentState = params.currentState;
     let pos = new THREE.Vector3(currentState.px, currentState.py, currentState.pz);
     let vel = new THREE.Vector3(currentState.vx, currentState.vy, currentState.vz);
     orbit3.orbit = new Orbit({pv: [pos, vel]});
