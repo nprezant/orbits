@@ -4,6 +4,7 @@
     flex-direction: column;
     width: max-content;
     margin: 0;
+    .unselectable();
 }
 
 img {
@@ -30,4 +31,11 @@ img {
 .corner-sw {
     bottom: 30px;
     left: 20px;
+}
+
+.unselectable {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
