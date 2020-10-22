@@ -8,14 +8,14 @@ const MU = 398600 // [kg/s2], constant for earth
 
 export class Orbit {
 
-    constructor({elements=undefined, pv=undefined}={}) {
+    constructor({ elements = undefined, pv = undefined } = {}) {
 
         if (elements !== undefined) {
             this.elements = elements;
         } else if (pv !== undefined) {
             this.elements = pv_to_elements(pv[0], pv[1]);
         } else {
-            this.elements = new ClassicalOrbitalElements(0,0,0,0,0,0);
+            this.elements = new ClassicalOrbitalElements(0, 0, 0, 0, 0, 0);
         }
     }
 
@@ -35,7 +35,7 @@ export class Orbit {
     }
 
     get semiMajorAxis() {
-        return this.elements.h**2 / (MU * (1 - this.elements.e**2));
+        return this.elements.h ** 2 / (MU * (1 - this.elements.e ** 2));
     }
 
     get rPerigee() {
@@ -55,11 +55,11 @@ export class Orbit {
     }
 
     get currentRadius() {
-        return this.semiMajorAxis * (1 - this.elements.e**2) / (1 + this.elements.e*Math.cos(this.elements.theta));
+        return this.semiMajorAxis * (1 - this.elements.e ** 2) / (1 + this.elements.e * Math.cos(this.elements.theta));
     }
 
     get radialVelocity() {
-        return MU/this.elements.h * this.elements.e * Math.sin(this.elements.theta);
+        return MU / this.elements.h * this.elements.e * Math.sin(this.elements.theta);
     }
 
     get azimuthalVelocity() {
@@ -67,11 +67,11 @@ export class Orbit {
     }
 
     get velocity() {
-        return Math.sqrt(this.radialVelocity**2 + this.azimuthalVelocity**2);
+        return Math.sqrt(this.radialVelocity ** 2 + this.azimuthalVelocity ** 2);
     }
 
     get period() {
-        return 2*Math.PI / Math.sqrt(MU) * this.semiMajorAxis**(3/2);
+        return 2 * Math.PI / Math.sqrt(MU) * this.semiMajorAxis ** (3 / 2);
     }
 
     get flightPathAngle() {
@@ -79,7 +79,7 @@ export class Orbit {
     }
 
     radiusAtTheta(theta) {
-        return this.elements.h**2 / MU * 1 / (1 + this.elements.e * Math.cos(theta));
+        return this.elements.h ** 2 / MU * 1 / (1 + this.elements.e * Math.cos(theta));
     }
 
     azimuthatVelocityAtTheta(theta) {
@@ -91,7 +91,7 @@ export class Orbit {
     }
 
     velocityAtTheta(theta) {
-        return Math.sqrt(this.radialVelocityAtTheta(theta)**2 + this.azimuthatVelocityAtTheta(theta)**2);
+        return Math.sqrt(this.radialVelocityAtTheta(theta) ** 2 + this.azimuthatVelocityAtTheta(theta) ** 2);
     }
 
     get rvec() {
@@ -107,12 +107,12 @@ export class Orbit {
     getpv() {
         // gets the IJK frame position, velocity vector
         // update the internal saved state to match both pv and elements
-        var [pos, vel] = elements_to_pv(this.elements);        
+        var [pos, vel] = elements_to_pv(this.elements);
         return [pos, vel];
     }
 
     clone() {
-        return new Orbit({elements: this.elements});
+        return new Orbit({ elements: this.elements });
     }
 
 }
@@ -196,14 +196,14 @@ export function pv_to_elements(rvec, vvec) {
     var h = vec3_mag(hvec);
 
     // step 6: compute inclination
-    var inclination = Math.acos(hvec.z/h);
+    var inclination = Math.acos(hvec.z / h);
 
     // step 7: compute node line vector
-    var Nvec = new THREE.Vector3(0,0,1).cross(hvec);
+    var Nvec = new THREE.Vector3(0, 0, 1).cross(hvec);
 
     // step 7.a: if node line vector is (0,0,0) => it should be (1,0,0) (orbit in equitorial plane)
-    if (Nvec.equals(new THREE.Vector3(0,0,0))) {
-        Nvec = new THREE.Vector3(1,0,0);
+    if (Nvec.equals(new THREE.Vector3(0, 0, 0))) {
+        Nvec = new THREE.Vector3(1, 0, 0);
     }
 
     // step 8: compute magnitude of node line vector
@@ -211,31 +211,31 @@ export function pv_to_elements(rvec, vvec) {
 
     // step 9: compute RA of the ascending node
     if (Nvec.y >= 0) {
-        var Omega = Math.acos(Nvec.x/N);
+        var Omega = Math.acos(Nvec.x / N);
     } else {
-        var Omega = 2*Math.PI - Math.acos(Nvec.x/N);
+        var Omega = 2 * Math.PI - Math.acos(Nvec.x / N);
     }
 
     // step 10: compute eccentricity vector
-    var evec = rvec.clone().multiplyScalar(v**2 - MU/r).sub(vvec.clone().multiplyScalar(r*vr)).multiplyScalar(1/MU);
+    var evec = rvec.clone().multiplyScalar(v ** 2 - MU / r).sub(vvec.clone().multiplyScalar(r * vr)).multiplyScalar(1 / MU);
 
     // step 11: compute eccentricity
     var e = vec3_mag(evec);
 
     // step 12: compute argument of perigee
     if (evec.z >= 0) {
-        var omega = Math.acos(Nvec.dot(evec)/(N*e));
+        var omega = Math.acos(Nvec.dot(evec) / (N * e));
     } else {
-        var omega = 2*Math.PI - Math.acos(Nvec.dot(evec)/(N*e));
+        var omega = 2 * Math.PI - Math.acos(Nvec.dot(evec) / (N * e));
     }
 
     // step 13: compute true anomoly
     if (vr >= 0) {
-        var theta = Math.acos(evec.dot(rvec)/(e*r));
+        var theta = Math.acos(evec.dot(rvec) / (e * r));
     } else {
-        var theta = 2*Math.PI - Math.acos(evec.dot(rvec)/(e*r));
+        var theta = 2 * Math.PI - Math.acos(evec.dot(rvec) / (e * r));
     }
- 
+
     // return the 6 classical orbital elements
     return new ClassicalOrbitalElements(theta, h, e, Omega, inclination, omega);
 
@@ -279,21 +279,21 @@ function elements_to_pv(el) {
     var inclination = el.inclination;
 
     // step 1: find position vector in perifocal frame
-    var rvecp = new THREE.Vector3(Math.cos(theta), Math.sin(theta), 0).multiplyScalar(h**2/MU * 1/(1+e*Math.cos(theta)));
+    var rvecp = new THREE.Vector3(Math.cos(theta), Math.sin(theta), 0).multiplyScalar(h ** 2 / MU * 1 / (1 + e * Math.cos(theta)));
 
     // step 2: find velocity vector in perifocal frame
-    var vvecp = new THREE.Vector3(-Math.sin(theta), e+Math.cos(theta), 0).multiplyScalar(MU/h);
+    var vvecp = new THREE.Vector3(-Math.sin(theta), e + Math.cos(theta), 0).multiplyScalar(MU / h);
 
     // step 3: compute tansformation matrix
     var QXx = R3(omega).multiply(R1(inclination)).multiply(R3(Omega));
     var QxX = QXx.clone().transpose();
 
     // step 4: transform to geocentric frame
-     var rvec = rvecp.applyMatrix3(QxX);
-     var vvec = vvecp.applyMatrix3(QxX);
+    var rvec = rvecp.applyMatrix3(QxX);
+    var vvec = vvecp.applyMatrix3(QxX);
 
-     // return transformed vectors
-     return [rvec, vvec];
+    // return transformed vectors
+    return [rvec, vvec];
 }
 
 export function orbital_path_pv_points(elements) {
@@ -303,7 +303,7 @@ export function orbital_path_pv_points(elements) {
     //      points.map(function(v,i) {return v[0]; });
 
     var el = elements.clone();
-    var thetas = arange(0, 2*Math.PI, 0.1);
+    var thetas = arange(0, 2 * Math.PI, 0.1);
     var points = [];
 
     thetas.forEach(theta => {
@@ -326,31 +326,31 @@ function elements_at_time(elements, time) {
     // finds the orbital elements at a given time (seconds)
 
     // find mean anomoly
-    var Me = MU**2/elements.h**3 * (1-elements.e**2)**(3/2) * time;
+    var Me = MU ** 2 / elements.h ** 3 * (1 - elements.e ** 2) ** (3 / 2) * time;
 
     // find eccentricic anomoly
     function Efunc(E) {
-        return E - elements.e*Math.sin(E) - Me;
+        return E - elements.e * Math.sin(E) - Me;
     }
     function Eprimefunc(E) {
-        return 1 - elements.e*Math.cos(E);
+        return 1 - elements.e * Math.cos(E);
     }
     if (Me <= Math.PI) {
-        var guess = Me + elements.e/2
+        var guess = Me + elements.e / 2
     } else {
-        var guess = Me - elements.e/2
+        var guess = Me - elements.e / 2
     }
     var E = newtons_method(Efunc, Eprimefunc, guess);
 
     // define orbital elements for this time
-    var theta = 2*Math.atan(Math.sqrt((1+elements.e)/(1-elements.e))*Math.tan(E/2));
+    var theta = 2 * Math.atan(Math.sqrt((1 + elements.e) / (1 - elements.e)) * Math.tan(E / 2));
     var new_el = elements.clone();
     new_el.theta = theta;
 
-    return new_el;    
+    return new_el;
 }
 
-export function newtons_method(f, fprime, guess, max_iter=100, threshold=0.0001) {
+export function newtons_method(f, fprime, guess, max_iter = 100, threshold = 0.0001) {
     // use newtons method to solve an equation.
     // f: function
     // fprime: function derivative
@@ -367,8 +367,8 @@ export function newtons_method(f, fprime, guess, max_iter=100, threshold=0.0001)
     for (var i = 1; i < max_iter; i++) {
         val = f(x);
         valprime = fprime(x);
-        x = x - val/valprime;
-        if (Math.abs(val/valprime) <= threshold) {
+        x = x - val / valprime;
+        if (Math.abs(val / valprime) <= threshold) {
             break;
         }
     }
@@ -378,15 +378,15 @@ export function newtons_method(f, fprime, guess, max_iter=100, threshold=0.0001)
 function elements_to_time(elements) {
     // find the time since perigee given classical orbital element set
 
-    let period = 2*Math.PI/MU**2 * (elements.h/Math.sqrt(1-elements.e**2))**3;
-    let E = 2*Math.atan(Math.sqrt((1-elements.e)/(1+elements.e))*Math.tan(elements.theta/2));
-    let t = (E-elements.e*Math.sin(E)) * period / (2*Math.PI);
+    let period = 2 * Math.PI / MU ** 2 * (elements.h / Math.sqrt(1 - elements.e ** 2)) ** 3;
+    let E = 2 * Math.atan(Math.sqrt((1 - elements.e) / (1 + elements.e)) * Math.tan(elements.theta / 2));
+    let t = (E - elements.e * Math.sin(E)) * period / (2 * Math.PI);
     return t
 }
 
 export function makeCircularElementsR(radius) {
     // makes classical orbital elements for a circular orbit, given the RADIUS
-    let v = Math.sqrt(MU/radius);
+    let v = Math.sqrt(MU / radius);
     let theta = 0;
     let h = v * radius;
     let e = 0;
@@ -398,9 +398,9 @@ export function makeCircularElementsR(radius) {
 
 export function makeCircularElementsV(velocity) {
     // makes classical orbital elements for a circular orbit, given the VELOCITY
-    let r = MU / velocity**2;
+    let r = MU / velocity ** 2;
     let theta = 0;
-    let h = r*velocity;
+    let h = r * velocity;
     let e = 0;
     let Omega = 0;
     let inclination = 0;
@@ -408,17 +408,17 @@ export function makeCircularElementsV(velocity) {
     return new ClassicalOrbitalElements(theta, h, e, Omega, inclination, omega);
 }
 
-export function makeEllipticalElementsR(rp, ra, omega=0) {
+export function makeEllipticalElementsR(rp, ra, omega = 0) {
     // makes classical orbital elements for an elliptical orbit, given RA and RP
     let theta = 0;
-    let h = Math.sqrt(2*MU) * Math.sqrt((ra*rp)/(ra+rp));
-    let e = (ra-rp)/(ra+rp);
+    let h = Math.sqrt(2 * MU) * Math.sqrt((ra * rp) / (ra + rp));
+    let e = (ra - rp) / (ra + rp);
     let Omega = 0;
     let inclination = 0;
     return new ClassicalOrbitalElements(theta, h, e, Omega, inclination, omega);
 }
 
-export function makeHohmannTransfer(startOrbit, endOrbit, startTheta=0) {
+export function makeHohmannTransfer(startOrbit, endOrbit, startTheta = 0) {
     // comes up with the classical orbital elements for the hohmann transfer ellipse
     // between two orbits.
     // orbits MUST share an apse line.
@@ -427,7 +427,7 @@ export function makeHohmannTransfer(startOrbit, endOrbit, startTheta=0) {
 
     let rStartTransfer = startOrbit.radiusAtTheta(startTheta);
     // let rend1 = startOrbit.radiusAtTheta(endTheta);
-    
+
     let rEndTransfer = endOrbit.radiusAtTheta(endTheta);
     // let ra2 = endOrbit.rApogee;
 
@@ -438,13 +438,13 @@ export function makeHohmannTransfer(startOrbit, endOrbit, startTheta=0) {
 
 export function hohmannTransferDeltaV(startOrbit, endOrbit, startAngle) {
     // finds the delta V required in a hohmann transfer
-    
-    let transferOrbit = new Orbit({elements:makeHohmannTransfer(startOrbit, endOrbit, startAngle)});
+
+    let transferOrbit = new Orbit({ elements: makeHohmannTransfer(startOrbit, endOrbit, startAngle) });
     let endAngle = startAngle + Math.PI; // 180 degrees
 
     let deltaV = (
-        Math.abs( endOrbit.velocityAtTheta(-endOrbit.elements.omega + endAngle) - transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + endAngle) )
-        + Math.abs( transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + startAngle) - startOrbit.velocityAtTheta(-startOrbit.elements.omega + startAngle) )
+        Math.abs(endOrbit.velocityAtTheta(-endOrbit.elements.omega + endAngle) - transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + endAngle))
+        + Math.abs(transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + startAngle) - startOrbit.velocityAtTheta(-startOrbit.elements.omega + startAngle))
     );
 
     return deltaV;
@@ -453,10 +453,10 @@ export function hohmannTransferDeltaV(startOrbit, endOrbit, startAngle) {
 
 export function transferDeltaV(startOrbit, endOrbit, transferOrbit, geocentricStartAngle, geocentricEndAngle) {
     let deltaV = (
-        Math.abs( endOrbit.velocityAtTheta(-endOrbit.elements.omega + geocentricEndAngle) - transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + geocentricStartAngle) )
-        + Math.abs( transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + geocentricStartAngle) - startOrbit.velocityAtTheta(-startOrbit.elements.omega + geocentricEndAngle) )
+        Math.abs(endOrbit.velocityAtTheta(-endOrbit.elements.omega + geocentricEndAngle) - transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + geocentricStartAngle))
+        + Math.abs(transferOrbit.velocityAtTheta(-transferOrbit.elements.omega + geocentricStartAngle) - startOrbit.velocityAtTheta(-startOrbit.elements.omega + geocentricEndAngle))
     );
-    
+
     return deltaV;
 }
 
