@@ -29,6 +29,6 @@
     "dat.gui": "^0.7.6",
     "inspire-tree": "^5.0.2",
     "inspire-tree-dom": "^4.0.6",
-    "three": "^0.103.0"
+    "three": "^0.125.0"
   }
 }
