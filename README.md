@@ -2,7 +2,7 @@
 
 3D Orbit Visualization and Computation
 
-[View the application here](https://boom-roasted.github.io/orbits/)
+[View the application here](https://nprezant.github.io/orbits/)
 
 ![Image of main application screen](ext/main_screen.png)
 
