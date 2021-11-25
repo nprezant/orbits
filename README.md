@@ -4,6 +4,8 @@
 
 [View the application here](https://nprezant.github.io/orbits/)
 
+This is the javascript implementation. See the C++ implementation [here](https://github.com/nprezant/orbitals/)
+
 ![Image of main application screen](ext/main_screen.png)
 
 ## How to Use
